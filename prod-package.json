@@ -1,0 +1,10 @@
+{
+  "name": "stunes-app",
+  "version": "0.0.0",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "scripts": {
+    "start": "node app.cjs"
+  }
+}

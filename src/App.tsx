@@ -1,5 +1,6 @@
-import "./App.css";
-import { className } from "./App.css";
+import './App.css';
+
+import { className } from './App.css';
 
 function App() {
   return (
