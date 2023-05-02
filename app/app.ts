@@ -1,12 +1,12 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const express = require('express');
-const path = require('path');
-var request = require('request');
-var cors = require('cors');
-var querystring = require('querystring');
-var cookieParser = require('cookie-parser');
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import express from 'express';
+import path from 'path';
+import querystring from 'querystring';
+import request from 'request';
 
-require('dotenv').config();
+dotenv.config();
 
 const PORT = process.env.PORT || 5001;
 
@@ -19,7 +19,7 @@ const redirect_uri = process.env.REDIRECT_URI;
  * @param  {number} length The length of the string
  * @return {string} The generated string
  */
-function generateRandomString(length) {
+function generateRandomString(length: number) {
   let text = '';
   const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -32,7 +32,7 @@ function generateRandomString(length) {
 
 const stateKey = 'spotify_auth_state';
 
-const root = path.join(__dirname, '../dist');
+const root = path.join(__dirname, '../../dist');
 
 const app = express();
 app.use('/', express.static(root)).use(cors()).use(cookieParser());
@@ -126,7 +126,7 @@ app.get('/refresh_token', function (req, res) {
 
   request.post(authOptions, function (error, response, body) {
     if (!error && response.statusCode === 200) {
-      var access_token = body.access_token;
+      const access_token = body.access_token;
       res.send({
         access_token: access_token,
       });
