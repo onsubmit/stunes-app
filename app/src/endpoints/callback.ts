@@ -37,20 +37,6 @@ export async function callback(request: ExpressRequest, response: ExpressRespons
   return redirect(response, accessTokenResult.val);
 }
 
-function validateState(request: ExpressRequest): boolean {
-  const state = `${request.query.state}`;
-  if (!state) {
-    return false;
-  }
-
-  const storedState: string = request.cookies ? request.cookies[Constants.stateKey] : null;
-  if (state !== storedState) {
-    return false;
-  }
-
-  return true;
-}
-
 async function getAccessTokenAsync(code: string): Promise<Result<TokenSuccess, TokenError>> {
   const { redirect_uri } = Constants;
 
@@ -85,6 +71,20 @@ async function getAccessTokenAsync(code: string): Promise<Result<TokenSuccess, T
       exception: `${e}`,
     });
   }
+}
+
+function validateState(request: ExpressRequest): boolean {
+  const state = `${request.query.state}`;
+  if (!state) {
+    return false;
+  }
+
+  const storedState: string = request.cookies ? request.cookies[Constants.stateKey] : null;
+  if (state !== storedState) {
+    return false;
+  }
+
+  return true;
 }
 
 function validateRequest(request: ExpressRequest): Result<void, TokenError> {
