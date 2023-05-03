@@ -1,9 +1,10 @@
+import cookie from 'cookie';
 import request from 'supertest';
 
-import app from '../../app/src/app';
+import app from '../../../app/src/app';
 
-describe('Post Endpoints', () => {
-  it('should create a new post', async () => {
+describe('/login', () => {
+  it('Should redirect to https://accounts.spotify.com/authorize', async () => {
     const response = await request(app).get('/login');
 
     expect(response.statusCode).toEqual(302);
@@ -17,7 +18,7 @@ describe('Post Endpoints', () => {
     expect(url.pathname).toBe('/authorize');
 
     expect(url.searchParams.get('response_type')).toBe('code');
-    expect(url.searchParams.get('client_id')).toBe('foo');
+    expect(url.searchParams.get('client_id')).toBe('test-client-id');
 
     expect(url.searchParams.get('scope')).toBe(
       [
@@ -29,6 +30,15 @@ describe('Post Endpoints', () => {
     );
 
     expect(url.searchParams.get('redirect_uri')).toBe('http://localhost:5001/callback');
-    expect(url.searchParams.get('state')).toHaveLength(16);
+
+    const state = url.searchParams.get('state');
+    expect(state).toHaveLength(16);
+
+    const setCookieHeader = `${response.headers['set-cookie'] || ''}`;
+    expect(setCookieHeader).toBeTruthy();
+
+    const cookies = cookie.parse(setCookieHeader);
+    const authCookie = cookies['spotify_auth_state'];
+    expect(authCookie).toBe(state);
   });
 });
