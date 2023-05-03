@@ -6,26 +6,9 @@ import { z } from 'zod';
 
 import Constants from '../Constants';
 import { getPostRequestHeaders } from './getPostRequestHeaders';
-
-const TokenSchema = z.object({
-  access_token: z.string(),
-  token_type: z.string(),
-  scope: z.string(),
-  expires_in: z.string(),
-  refresh_token: z.string(),
-});
-
-type Token = z.infer<typeof TokenSchema>;
-type TokenSuccess = { access_token: string; refresh_token: string };
-type TokenError =
-  | { error: 'invalid_request'; message: string }
-  | { error: 'invalid_status'; status: number }
-  | { error: 'invalid_response'; message: string }
-  | { error: 'invalid_token'; exception: string };
+import { AccessAndRefreshToken, AccessAndRefreshTokenResult, AccessAndRefreshTokenSchema, TokenError } from './types';
 
 export async function callback(request: ExpressRequest, response: ExpressResponse) {
-  const code = `${request.query.code}`;
-
   const requestResult = validateRequest(request);
   if (requestResult.err) {
     return redirect(response, requestResult.val);
@@ -33,16 +16,16 @@ export async function callback(request: ExpressRequest, response: ExpressRespons
 
   response.clearCookie(Constants.stateKey);
 
-  const accessTokenResult = await getAccessTokenAsync(code);
+  const accessTokenResult = await getAccessAndRefreshTokenAsync(request);
   return redirect(response, accessTokenResult.val);
 }
 
-async function getAccessTokenAsync(code: string): Promise<Result<TokenSuccess, TokenError>> {
-  const { redirect_uri } = Constants;
-
+async function getAccessAndRefreshTokenAsync(
+  request: ExpressRequest
+): Promise<Result<AccessAndRefreshTokenResult, TokenError>> {
   const data = {
-    code,
-    redirect_uri,
+    code: `${request.query.code || ''}`,
+    redirect_uri: Constants.redirect_uri,
     grant_type: 'authorization_code',
   };
 
@@ -53,13 +36,12 @@ async function getAccessTokenAsync(code: string): Promise<Result<TokenSuccess, T
       body: new URLSearchParams(data),
     });
 
-    const result = validateResponse(response);
+    const result = await validateResponseAsync(response);
     if (result.err) {
       return result;
     }
 
-    const body: Token = await response.json();
-    const { access_token, refresh_token } = body;
+    const { access_token, refresh_token } = result.val;
 
     return new Ok({
       access_token,
@@ -74,7 +56,7 @@ async function getAccessTokenAsync(code: string): Promise<Result<TokenSuccess, T
 }
 
 function validateState(request: ExpressRequest): boolean {
-  const state = `${request.query.state}`;
+  const state = `${request.query.state || ''}`;
   if (!state) {
     return false;
   }
@@ -95,7 +77,7 @@ function validateRequest(request: ExpressRequest): Result<void, TokenError> {
     });
   }
 
-  const error = `${request.query.error}`;
+  const error = `${request.query.error || ''}`;
   if (error) {
     return new Err({
       error: 'invalid_request',
@@ -103,10 +85,18 @@ function validateRequest(request: ExpressRequest): Result<void, TokenError> {
     });
   }
 
+  const code = `${request.query.code || ''}`;
+  if (!code) {
+    return new Err({
+      error: 'invalid_request',
+      message: 'missing_code',
+    });
+  }
+
   return Ok.EMPTY;
 }
 
-function validateResponse(response: FetchResponse): Result<void, TokenError> {
+async function validateResponseAsync(response: FetchResponse): Promise<Result<AccessAndRefreshToken, TokenError>> {
   if (response.status !== 200) {
     return new Err({
       error: 'invalid_status',
@@ -114,18 +104,20 @@ function validateResponse(response: FetchResponse): Result<void, TokenError> {
     });
   }
 
+  const body: AccessAndRefreshToken = await response.json();
+
   try {
-    TokenSchema.parse(response);
+    AccessAndRefreshTokenSchema.parse(body);
   } catch (err) {
     if (err instanceof z.ZodError) {
       return new Err({
         error: 'invalid_response',
-        message: err.message,
+        response: await response.text(),
       });
     }
   }
 
-  return Ok.EMPTY;
+  return new Ok(body);
 }
 
 function redirect(res: ExpressResponse, queryString: ParsedUrlQueryInput): void {

@@ -1,12 +1,24 @@
-import { Request, Response } from 'express';
-import fetch from 'node-fetch';
+import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
+import fetch, { Response as FetchResponse } from 'node-fetch';
+import { Err, Ok, Result } from 'ts-results';
+import { z } from 'zod';
 
-import Constants from '../Constants';
+import { getPostRequestHeaders } from './getPostRequestHeaders';
+import { AccessToken, AccessTokenResult, AccessTokenSchema, TokenError } from './types';
 
-export async function refresh_token(req: Request, res: Response) {
-  const { client_id, client_secret } = Constants;
+export async function refresh_token(request: ExpressRequest, response: ExpressResponse) {
+  const refresh_token = `${request.query.refresh_token || ''}`;
+  const requestResult = validateRequest(refresh_token);
+  if (requestResult.err) {
+    response.send(requestResult.val);
+    return;
+  }
 
-  const refresh_token = `${req.query.refresh_token}`;
+  const accessTokenResult = await getAccessTokenAsync(refresh_token);
+  response.send(accessTokenResult.val);
+}
+
+async function getAccessTokenAsync(refresh_token: string): Promise<Result<AccessTokenResult, TokenError>> {
   const data = {
     grant_type: 'refresh_token',
     refresh_token,
@@ -16,31 +28,58 @@ export async function refresh_token(req: Request, res: Response) {
     const response = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
       body: new URLSearchParams(data),
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: 'Basic ' + Buffer.from(`${client_id}:${client_secret}`).toString('base64'),
-      },
+      headers: getPostRequestHeaders(),
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const body: any = await response.json();
-
-    if (response.status !== 200) {
-      res.send({
-        error: body,
-      });
-
-      return;
+    const result = await validateResponseAsync(response);
+    if (result.err) {
+      return result;
     }
 
-    const access_token = body.access_token;
-    res.send({
+    const { access_token } = result.val;
+
+    return new Ok({
       access_token,
     });
-  } catch (error) {
-    res.send({
-      error,
+  } catch (e: unknown) {
+    return new Err({
+      error: 'invalid_token',
+      exception: `${e}`,
     });
   }
+}
+
+function validateRequest(refresh_token: string): Result<void, TokenError> {
+  if (!refresh_token) {
+    return new Err({
+      error: 'invalid_request',
+      message: 'missing_refresh_token',
+    });
+  }
+
+  return Ok.EMPTY;
+}
+
+async function validateResponseAsync(response: FetchResponse): Promise<Result<AccessToken, TokenError>> {
+  if (response.status !== 200) {
+    return new Err({
+      error: 'invalid_status',
+      status: response.status,
+    });
+  }
+
+  const body: AccessToken = await response.json();
+
+  try {
+    AccessTokenSchema.parse(body);
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return new Err({
+        error: 'invalid_response',
+        response: await response.text(),
+      });
+    }
+  }
+
+  return new Ok(body);
 }
