@@ -1,31 +1,61 @@
-import { Request, Response } from 'express';
-import fetch from 'node-fetch';
-import querystring from 'querystring';
+import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
+import fetch, { Response as FetchResponse } from 'node-fetch';
+import querystring, { ParsedUrlQueryInput } from 'querystring';
+import { Err, Ok, Result } from 'ts-results';
+import { z } from 'zod';
 
 import Constants from '../Constants';
+import { getPostRequestHeaders } from './getPostRequestHeaders';
 
-export async function callback(req: Request, res: Response) {
-  const { client_id, client_secret, redirect_uri } = Constants;
+const TokenSchema = z.object({
+  access_token: z.string(),
+  token_type: z.string(),
+  scope: z.string(),
+  expires_in: z.string(),
+  refresh_token: z.string(),
+});
 
-  const code = `${req.query.code}`;
-  const state = `${req.query.state}`;
-  const storedState: string = req.cookies ? req.cookies[Constants.stateKey] : null;
+type Token = z.infer<typeof TokenSchema>;
+type TokenSuccess = { access_token: string; refresh_token: string };
+type TokenError =
+  | { error: 'invalid_request'; message: string }
+  | { error: 'invalid_status'; status: number }
+  | { error: 'invalid_response'; message: string }
+  | { error: 'invalid_token'; exception: string };
 
-  if (!state || state !== storedState) {
-    res.redirect(
-      '/#' +
-        querystring.stringify({
-          error: 'state_mismatch',
-        })
-    );
+export async function callback(request: ExpressRequest, response: ExpressResponse) {
+  const code = `${request.query.code}`;
 
-    return;
+  const requestResult = validateRequest(request);
+  if (requestResult.err) {
+    return redirect(response, requestResult.val);
   }
 
-  res.clearCookie(Constants.stateKey);
+  response.clearCookie(Constants.stateKey);
+
+  const accessTokenResult = await getAccessTokenAsync(code);
+  return redirect(response, accessTokenResult.val);
+}
+
+function validateState(request: ExpressRequest): boolean {
+  const state = `${request.query.state}`;
+  if (!state) {
+    return false;
+  }
+
+  const storedState: string = request.cookies ? request.cookies[Constants.stateKey] : null;
+  if (state !== storedState) {
+    return false;
+  }
+
+  return true;
+}
+
+async function getAccessTokenAsync(code: string): Promise<Result<TokenSuccess, TokenError>> {
+  const { redirect_uri } = Constants;
 
   const data = {
-    code: code,
+    code,
     redirect_uri,
     grant_type: 'authorization_code',
   };
@@ -33,46 +63,71 @@ export async function callback(req: Request, res: Response) {
   try {
     const response = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: 'Basic ' + Buffer.from(`${client_id}:${client_secret}`).toString('base64'),
-      },
+      headers: getPostRequestHeaders(),
       body: new URLSearchParams(data),
     });
 
-    if (response.status !== 200) {
-      res.redirect(
-        '/#' +
-          querystring.stringify({
-            error: 'invalid_token',
-            status: response.status,
-          })
-      );
-
-      return;
+    const result = validateResponse(response);
+    if (result.err) {
+      return result;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const body: any = await response.json();
-    const access_token = body.access_token;
-    const refresh_token = body.refresh_token;
+    const body: Token = await response.json();
+    const { access_token, refresh_token } = body;
 
-    // we can also pass the token to the browser to make requests from there
-    res.redirect(
-      '/#' +
-        querystring.stringify({
-          access_token: access_token,
-          refresh_token: refresh_token,
-        })
-    );
+    return new Ok({
+      access_token,
+      refresh_token,
+    });
   } catch (e: unknown) {
-    res.redirect(
-      '/#' +
-        querystring.stringify({
-          error: 'invalid_token',
-          exception: `${e}`,
-        })
-    );
+    return new Err({
+      error: 'invalid_token',
+      exception: `${e}`,
+    });
   }
+}
+
+function validateRequest(request: ExpressRequest): Result<void, TokenError> {
+  if (!validateState(request)) {
+    return new Err({
+      error: 'invalid_request',
+      message: 'state_mismatch',
+    });
+  }
+
+  const error = `${request.query.error}`;
+  if (error) {
+    return new Err({
+      error: 'invalid_request',
+      message: error,
+    });
+  }
+
+  return Ok.EMPTY;
+}
+
+function validateResponse(response: FetchResponse): Result<void, TokenError> {
+  if (response.status !== 200) {
+    return new Err({
+      error: 'invalid_status',
+      status: response.status,
+    });
+  }
+
+  try {
+    TokenSchema.parse(response);
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return new Err({
+        error: 'invalid_response',
+        message: err.message,
+      });
+    }
+  }
+
+  return Ok.EMPTY;
+}
+
+function redirect(res: ExpressResponse, queryString: ParsedUrlQueryInput): void {
+  res.redirect(`/#${querystring.stringify(queryString)}`);
 }
