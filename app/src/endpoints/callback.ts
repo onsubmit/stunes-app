@@ -3,14 +3,13 @@ import fetch from 'node-fetch';
 import querystring from 'querystring';
 
 import Constants from '../Constants';
-import { stateKey } from '../stateKey';
 
 export async function callback(req: Request, res: Response) {
   const { client_id, client_secret, redirect_uri } = Constants;
 
   const code = `${req.query.code}`;
   const state = `${req.query.state}`;
-  const storedState: string = req.cookies ? req.cookies[stateKey] : null;
+  const storedState: string = req.cookies ? req.cookies[Constants.stateKey] : null;
 
   if (!state || state !== storedState) {
     res.redirect(
@@ -23,7 +22,7 @@ export async function callback(req: Request, res: Response) {
     return;
   }
 
-  res.clearCookie(stateKey);
+  res.clearCookie(Constants.stateKey);
 
   const data = {
     code: code,

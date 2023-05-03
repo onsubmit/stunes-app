@@ -3,13 +3,12 @@ import querystring from 'querystring';
 
 import Constants from '../Constants';
 import { generateRandomString } from '../generateRandomString';
-import { stateKey } from '../stateKey';
 
 export function login(_req: Request, res: Response) {
   const { client_id, redirect_uri } = Constants;
 
   const state = generateRandomString(16);
-  res.cookie(stateKey, state);
+  res.cookie(Constants.stateKey, state);
 
   const scopes = [
     'playlist-read-private',

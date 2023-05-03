@@ -29,6 +29,8 @@ class Constants {
 
     return value;
   }
+
+  static stateKey = 'spotify_auth_state';
 }
 
 export default Constants;
