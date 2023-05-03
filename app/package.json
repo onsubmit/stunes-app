@@ -13,7 +13,7 @@
   },
   "scripts": {
     "build": "npx tsc",
-    "start": "node dist/app.js",
+    "start": "node dist/src/app.js",
     "run": "yarn run build && yarn run start"
   },
   "devDependencies": {
