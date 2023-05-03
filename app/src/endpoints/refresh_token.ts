@@ -3,8 +3,8 @@ import fetch, { Response as FetchResponse } from 'node-fetch';
 import { Err, Ok, Result } from 'ts-results';
 import { z } from 'zod';
 
-import { getPostRequestHeaders } from './getPostRequestHeaders';
-import { AccessToken, AccessTokenResult, AccessTokenSchema, TokenError } from './types';
+import { getPostRequestHeaders } from '../getPostRequestHeaders';
+import { AccessToken, AccessTokenResult, AccessTokenSchema, TokenError } from '../types';
 
 export async function refresh_token(request: ExpressRequest, response: ExpressResponse) {
   const refresh_token = `${request.query.refresh_token || ''}`;

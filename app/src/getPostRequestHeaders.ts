@@ -1,4 +1,4 @@
-import Constants from '../Constants';
+import Constants from './Constants';
 
 export function getPostRequestHeaders() {
   const { client_id, client_secret } = Constants;

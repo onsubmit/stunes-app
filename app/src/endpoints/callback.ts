@@ -5,8 +5,8 @@ import { Err, Ok, Result } from 'ts-results';
 import { z } from 'zod';
 
 import Constants from '../Constants';
-import { getPostRequestHeaders } from './getPostRequestHeaders';
-import { AccessAndRefreshToken, AccessAndRefreshTokenResult, AccessAndRefreshTokenSchema, TokenError } from './types';
+import { getPostRequestHeaders } from '../getPostRequestHeaders';
+import { AccessAndRefreshToken, AccessAndRefreshTokenResult, AccessAndRefreshTokenSchema, TokenError } from '../types';
 
 export async function callback(request: ExpressRequest, response: ExpressResponse) {
   const requestResult = validateRequest(request);
