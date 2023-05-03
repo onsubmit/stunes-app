@@ -18,7 +18,11 @@ app.get('/login', login);
 app.get('/callback', callback);
 app.get('/refresh_token', refresh_token);
 
-app.listen(PORT, () => {
-  console.log(`Listening on ${PORT}.`);
-  console.log(`Navigate to http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Listening on ${PORT}.`);
+    console.log(`Navigate to http://localhost:${PORT}`);
+  });
+}
+
+export default app;
