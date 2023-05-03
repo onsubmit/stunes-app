@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import fetch from 'node-fetch';
 
-import Constants from '../constants';
+import Constants from '../Constants';
 
 export async function refresh_token(req: Request, res: Response) {
   const { client_id, client_secret } = Constants;

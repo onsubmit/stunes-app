@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import fetch from 'node-fetch';
 import querystring from 'querystring';
 
-import Constants from '../constants';
+import Constants from '../Constants';
 import { stateKey } from '../stateKey';
 
 export async function callback(req: Request, res: Response) {

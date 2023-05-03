@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import querystring from 'querystring';
 
-import Constants from '../constants';
+import Constants from '../Constants';
 import { generateRandomString } from '../generateRandomString';
 import { stateKey } from '../stateKey';
 
