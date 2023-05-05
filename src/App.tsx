@@ -1,11 +1,12 @@
 import './App.css';
 
 import { className } from './App.css';
+import AuthorizeForm from './components/AuthorizeForm';
 
 function App() {
   return (
     <div className={className}>
-      <h1>Hello World!</h1>
+      <AuthorizeForm />
     </div>
   );
 }

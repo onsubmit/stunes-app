@@ -41,11 +41,12 @@ async function getAccessAndRefreshTokenAsync(
       return result;
     }
 
-    const { access_token, refresh_token } = result.val;
+    const { access_token, refresh_token, expires_in } = result.val;
 
     return new Ok({
       access_token,
       refresh_token,
+      expires_in,
     });
   } catch (e: unknown) {
     return new Err({

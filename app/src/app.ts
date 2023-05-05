@@ -9,7 +9,7 @@ import { refresh_token } from './endpoints/refresh_token';
 
 const PORT = process.env.PORT || 5001;
 
-const root = path.join(__dirname, '../../dist');
+const root = path.join(__dirname, '../../../dist');
 
 const app = express();
 app.use('/', express.static(root)).use(cors()).use(cookieParser());
