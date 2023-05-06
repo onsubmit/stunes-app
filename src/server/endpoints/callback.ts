@@ -2,7 +2,6 @@ import { Request as ExpressRequest, Response as ExpressResponse } from 'express'
 import fetch, { Response as FetchResponse } from 'node-fetch';
 import querystring, { ParsedUrlQueryInput } from 'querystring';
 import { Err, Ok, Result } from 'ts-results';
-import { z } from 'zod';
 
 import Constants from '../Constants';
 import { getPostRequestHeaders } from '../getPostRequestHeaders';
@@ -105,20 +104,15 @@ async function validateResponseAsync(response: FetchResponse): Promise<Result<Ac
     });
   }
 
-  const body: AccessAndRefreshToken = await response.json();
-
-  try {
-    AccessAndRefreshTokenSchema.parse(body);
-  } catch (err) {
-    if (err instanceof z.ZodError) {
-      return new Err({
-        error: 'invalid_response',
-        response: await response.text(),
-      });
-    }
+  const parsed = AccessAndRefreshTokenSchema.safeParse(await response.json());
+  if (parsed.success) {
+    return new Ok(parsed.data);
   }
 
-  return new Ok(body);
+  return new Err({
+    error: 'invalid_response',
+    response: await response.text(),
+  });
 }
 
 function redirect(res: ExpressResponse, queryString: ParsedUrlQueryInput): void {

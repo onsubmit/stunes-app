@@ -1,7 +1,6 @@
 import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 import fetch, { Response as FetchResponse } from 'node-fetch';
 import { Err, Ok, Result } from 'ts-results';
-import { z } from 'zod';
 
 import { getPostRequestHeaders } from '../getPostRequestHeaders';
 import { AccessToken, AccessTokenResult, AccessTokenSchema, TokenError } from '../types';
@@ -68,18 +67,13 @@ async function validateResponseAsync(response: FetchResponse): Promise<Result<Ac
     });
   }
 
-  const body: AccessToken = await response.json();
-
-  try {
-    AccessTokenSchema.parse(body);
-  } catch (err) {
-    if (err instanceof z.ZodError) {
-      return new Err({
-        error: 'invalid_response',
-        response: await response.text(),
-      });
-    }
+  const parsed = AccessTokenSchema.safeParse(await response.json());
+  if (parsed.success) {
+    return new Ok(parsed.data);
   }
 
-  return new Ok(body);
+  return new Err({
+    error: 'invalid_response',
+    response: await response.text(),
+  });
 }

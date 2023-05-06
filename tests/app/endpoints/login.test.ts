@@ -1,7 +1,8 @@
 import cookie from 'cookie';
 import request from 'supertest';
+import { describe, expect, it } from 'vitest';
 
-import app from '../../../app/src/app';
+import app from '../../../src/server/server';
 
 describe('/login', () => {
   it('Should redirect to https://accounts.spotify.com/authorize', async () => {
