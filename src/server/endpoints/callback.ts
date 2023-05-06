@@ -104,15 +104,42 @@ async function validateResponseAsync(response: FetchResponse): Promise<Result<Ac
     });
   }
 
-  const parsed = AccessAndRefreshTokenSchema.safeParse(await response.json());
-  if (parsed.success) {
-    return new Ok(parsed.data);
+  const contentTypeHeader = `${response.headers.get('content-type') || ''}`;
+  if (!contentTypeHeader.includes('application/json')) {
+    return new Err({
+      error: 'invalid_response',
+      response: await response.text(),
+    });
   }
 
-  return new Err({
-    error: 'invalid_response',
-    response: await response.text(),
-  });
+  const getResponseJsonResult = await getResponseJsonAsync(response);
+  if (getResponseJsonResult.err) {
+    return new Err({
+      error: 'invalid_response',
+      response: getResponseJsonResult.val,
+    });
+  }
+
+  return getResponseJsonResult;
+}
+
+async function getResponseJsonAsync(response: FetchResponse): Promise<Result<AccessAndRefreshToken, string>> {
+  const text = await response.text();
+
+  try {
+    const body = JSON.parse(text);
+    const parsed = AccessAndRefreshTokenSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return new Err(JSON.stringify(parsed.error.format()));
+    }
+
+    return new Ok(parsed.data);
+  } catch {
+    // ignore
+  }
+
+  return new Err(text);
 }
 
 function redirect(res: ExpressResponse, queryString: ParsedUrlQueryInput): void {
