@@ -12,7 +12,8 @@
     "lint:fix": "eslint ./src --ext .jsx,.js,.ts,.tsx --fix --ignore-path ./.gitignore",
     "lint:format": "prettier  --loglevel warn --write \"./**/*.{js,jsx,ts,tsx,css,md,json}\"",
     "test": "cross-env NODE_ENV=test vitest run",
-    "test-watch": "cross-env NODE_ENV=test vitest watch"
+    "test-watch": "cross-env NODE_ENV=test vitest watch",
+    "test-ui": "cross-env NODE_ENV=test vitest --ui --api 9527"
   },
   "dependencies": {
     "cookie-parser": "^1.4.6",
@@ -43,6 +44,7 @@
     "@typescript-eslint/eslint-plugin": "^5.57.1",
     "@typescript-eslint/parser": "^5.57.1",
     "@vitejs/plugin-react-swc": "^3.0.0",
+    "@vitest/ui": "^0.31.0",
     "cookie": "^0.5.0",
     "cross-env": "^7.0.3",
     "eslint": "^8.39.0",
