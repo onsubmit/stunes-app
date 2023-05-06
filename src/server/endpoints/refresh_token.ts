@@ -35,10 +35,11 @@ async function getAccessTokenAsync(refresh_token: string): Promise<Result<Access
       return result;
     }
 
-    const { access_token } = result.val;
+    const { access_token, expires_in } = result.val;
 
     return new Ok({
       access_token,
+      expires_in,
     });
   } catch (e: unknown) {
     return new Err({
@@ -67,13 +68,40 @@ async function validateResponseAsync(response: FetchResponse): Promise<Result<Ac
     });
   }
 
-  const parsed = AccessTokenSchema.safeParse(await response.json());
-  if (parsed.success) {
-    return new Ok(parsed.data);
+  const contentTypeHeader = `${response.headers.get('content-type') || ''}`;
+  if (!contentTypeHeader.includes('application/json')) {
+    return new Err({
+      error: 'invalid_response',
+      response: await response.text(),
+    });
   }
 
-  return new Err({
-    error: 'invalid_response',
-    response: await response.text(),
-  });
+  const getResponseJsonResult = await getResponseJsonAsync(response);
+  if (getResponseJsonResult.err) {
+    return new Err({
+      error: 'invalid_response',
+      response: getResponseJsonResult.val,
+    });
+  }
+
+  return getResponseJsonResult;
+}
+
+async function getResponseJsonAsync(response: FetchResponse): Promise<Result<AccessToken, string>> {
+  const text = await response.text();
+
+  try {
+    const body = JSON.parse(text);
+    const parsed = AccessTokenSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return new Err(JSON.stringify(parsed.error.format()));
+    }
+
+    return new Ok(parsed.data);
+  } catch {
+    // ignore
+  }
+
+  return new Err(text);
 }

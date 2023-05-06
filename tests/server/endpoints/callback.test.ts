@@ -21,7 +21,7 @@ describe('/callback', () => {
     fetch.mockReset();
   });
 
-  it('Should redirect with access and refresh tokens', async () => {
+  it('Should redirect with access and refresh tokens, and expiration', async () => {
     mockValidResponse();
 
     const state = 'randomstring';
