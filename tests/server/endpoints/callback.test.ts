@@ -22,23 +22,7 @@ describe('/callback', () => {
   });
 
   it('Should redirect with access and refresh tokens', async () => {
-    fetch.mockImplementationOnce(
-      async () =>
-        new Response(
-          JSON.stringify({
-            access_token: 'a_t',
-            token_type: 'Bearer',
-            scope: 's1 s2 s3',
-            expires_in: 3600,
-            refresh_token: 'r_t',
-          }),
-          {
-            headers: {
-              'content-type': 'application/json',
-            },
-          }
-        )
-    );
+    mockValidResponse();
 
     const state = 'randomstring';
     const response = await request(app)
@@ -50,18 +34,7 @@ describe('/callback', () => {
   });
 
   it('Should clear state cookie', async () => {
-    fetch.mockImplementationOnce(
-      async () =>
-        new Response(
-          JSON.stringify({
-            access_token: 'a_t',
-            token_type: 'Bearer',
-            scope: 's1 s2 s3',
-            expires_in: 3600,
-            refresh_token: 'r_t',
-          })
-        )
-    );
+    mockValidResponse();
 
     const state = 'randomstring';
     const response = await request(app)
@@ -84,8 +57,6 @@ describe('/callback', () => {
   });
 
   it('Should redirect with invalid state when state cookie does not match', async () => {
-    fetch.mockImplementationOnce(async () => new Response(null, { status: 400 }));
-
     const state = 'randomstring';
     const response = await request(app)
       .get(`/callback?code=foo&state=${state}`)
@@ -96,19 +67,6 @@ describe('/callback', () => {
   });
 
   it('Should redirect with error', async () => {
-    fetch.mockImplementationOnce(
-      async () =>
-        new Response(
-          JSON.stringify({
-            access_token: 'a_t',
-            token_type: 'Bearer',
-            scope: 's1 s2 s3',
-            expires_in: 3600,
-            refresh_token: 'r_t',
-          })
-        )
-    );
-
     const state = 'randomstring';
     const response = await request(app)
       .get(`/callback?state=${state}&error=access_denied`)
@@ -119,19 +77,6 @@ describe('/callback', () => {
   });
 
   it('Should redirect with missing code', async () => {
-    fetch.mockImplementationOnce(
-      async () =>
-        new Response(
-          JSON.stringify({
-            access_token: 'a_t',
-            token_type: 'Bearer',
-            scope: 's1 s2 s3',
-            expires_in: 3600,
-            refresh_token: 'r_t',
-          })
-        )
-    );
-
     const state = 'randomstring';
     const response = await request(app)
       .get(`/callback?state=${state}`)
@@ -192,4 +137,24 @@ describe('/callback', () => {
     expect(response.statusCode).toEqual(302);
     expect(response.headers['location']).toBe('/#error=invalid_response&response=hi');
   });
+
+  function mockValidResponse() {
+    fetch.mockImplementationOnce(
+      async () =>
+        new Response(
+          JSON.stringify({
+            access_token: 'a_t',
+            token_type: 'Bearer',
+            scope: 's1 s2 s3',
+            expires_in: 3600,
+            refresh_token: 'r_t',
+          }),
+          {
+            headers: {
+              'content-type': 'application/json',
+            },
+          }
+        )
+    );
+  }
 });
