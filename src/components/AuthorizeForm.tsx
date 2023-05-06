@@ -11,7 +11,7 @@ function AuthorizeForm() {
     const { accessToken, refreshToken, expiresIn } = getHashDataResult.val;
     localStorageManager.set('access_token', accessToken);
     localStorageManager.set('refresh_token', refreshToken);
-    localStorageManager.set<number>('expires', expiresIn);
+    localStorageManager.set<number>('expires', new Date().getTime() + expiresIn);
   }
 
   const localStorageResult = getLocalStorageData();
