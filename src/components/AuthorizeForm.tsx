@@ -16,18 +16,21 @@ function AuthorizeForm() {
   const {
     isLoading,
     error,
-    data: profileBadgeProps,
+    data: profileBadgePropsResult,
   } = useQuery({
     queryKey: ['currentUserProfile'],
     retry: false,
     refetchOnReconnect: false,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
+
     queryFn: async () => {
       const propsResult = await getProfileBadgePropsAsync();
       if (propsResult.ok) {
-        return propsResult.val;
+        return new Ok(propsResult.val);
       }
+
+      return Err.EMPTY;
     },
   });
 
@@ -37,21 +40,21 @@ function AuthorizeForm() {
       // Remove the hash so the tokens aren't shown directly to the user.
       history.pushState('', document.title, window.location.pathname);
 
-      const { accessToken, refreshToken, expiresIn } = getHashDataResult.val;
+      const { accessToken, refreshToken, expiresInMs } = getHashDataResult.val;
       localStorageManager.set('access_token', accessToken);
       localStorageManager.set('refresh_token', refreshToken);
-      localStorageManager.set<number>('expires', new Date().getTime() + expiresIn);
+      localStorageManager.set<number>('expires', new Date().getTime() + expiresInMs);
     }
   }
 
-  async function getProfileBadgePropsAsync(): Promise<Result<ProfileBadgeProps, void>> {
+  async function getProfileBadgePropsAsync(): Promise<Result<ProfileBadgeProps | void, void>> {
     const result = await getOrRefreshAccessTokenAsync();
     if (!result.ok) {
-      return Err.EMPTY;
+      return Ok.EMPTY;
     }
 
-    const accessToken = result.val;
-    return await getMeAsync(accessToken);
+    const { accessToken, refreshToken } = result.val;
+    return await getMeAsync(accessToken, refreshToken);
   }
 
   function getLocalStorageData(): Result<{ accessToken: string; refreshToken: string; expires: number }, void> {
@@ -70,17 +73,17 @@ function AuthorizeForm() {
     return Err.EMPTY;
   }
 
-  function getHashData(): Result<{ accessToken: string; refreshToken: string; expiresIn: number }, void> {
+  function getHashData(): Result<{ accessToken: string; refreshToken: string; expiresInMs: number }, void> {
     const accessTokenResult = getHashValue('access_token');
     const refreshTokenResult = getHashValue('refresh_token');
     const expiresInResult = getHashValue('expires_in');
 
     if (accessTokenResult.ok && refreshTokenResult.ok && expiresInResult.ok) {
-      const expiresIn = parseInt(expiresInResult.val, 10);
+      const expiresInSeconds = parseInt(expiresInResult.val, 10);
       return new Ok({
         accessToken: accessTokenResult.val,
         refreshToken: refreshTokenResult.val,
-        expiresIn: new Date().getTime() + expiresIn,
+        expiresInMs: 1000 * (isNaN(expiresInSeconds) ? 3600 : expiresInSeconds),
       });
     }
 
@@ -97,7 +100,7 @@ function AuthorizeForm() {
     return Err.EMPTY;
   }
 
-  async function getOrRefreshAccessTokenAsync(): Promise<Result<string, void>> {
+  async function getOrRefreshAccessTokenAsync(): Promise<Result<{ accessToken: string; refreshToken: string }, void>> {
     const localStorageResult = getLocalStorageData();
     if (!localStorageResult.ok) {
       return Err.EMPTY;
@@ -106,7 +109,7 @@ function AuthorizeForm() {
     const { accessToken, refreshToken, expires } = localStorageResult.val;
     const isAccessTokenExpired = new Date().getTime() > expires;
     if (!isAccessTokenExpired) {
-      return new Ok(accessToken);
+      return new Ok({ accessToken, refreshToken });
     }
 
     const refreshAccessTokenResult = await refreshAccessTokenAsync(refreshToken);
@@ -114,11 +117,11 @@ function AuthorizeForm() {
       return Err.EMPTY;
     }
 
-    const { access_token, expires_in } = refreshAccessTokenResult.val;
+    const { access_token, expires_in: expiresInSeconds } = refreshAccessTokenResult.val;
     localStorageManager.set('access_token', access_token);
-    localStorageManager.set<number>('expires', new Date().getTime() + expires_in);
+    localStorageManager.set<number>('expires', new Date().getTime() + 1000 * expiresInSeconds);
 
-    return new Ok(access_token);
+    return new Ok({ accessToken, refreshToken });
   }
 
   async function refreshAccessTokenAsync(refreshToken: string): Promise<Result<AccessToken, void>> {
@@ -137,28 +140,55 @@ function AuthorizeForm() {
   }
 
   async function getMeAsync(
-    accessToken: string
+    accessToken: string,
+    refreshToken: string
   ): Promise<Result<{ displayName: string; profilePhotoUrl: string }, void>> {
     const spotifyApi = new SpotifyWebApi();
     spotifyApi.setAccessToken(accessToken);
 
-    const profile = await spotifyApi.getMe();
-    if (!profile.display_name || !profile.images || !profile.images[0].url) {
+    try {
+      const profile = await spotifyApi.getMe();
+      if (!profile.display_name || !profile.images || !profile.images[0].url) {
+        return Err.EMPTY;
+      }
+
+      return new Ok({
+        displayName: profile.display_name,
+        profilePhotoUrl: profile.images[0].url,
+      });
+    } catch (err: unknown) {
+      if (err instanceof XMLHttpRequest) {
+        const request: XMLHttpRequest = err;
+        if (request.status === 401 && request.response) {
+          try {
+            const response = JSON.parse(request.response);
+            if (response?.error?.message === 'The access token expired') {
+              const refreshAccessTokenResult = await refreshAccessTokenAsync(refreshToken);
+              if (!refreshAccessTokenResult.ok) {
+                return Err.EMPTY;
+              }
+
+              const { access_token, expires_in } = refreshAccessTokenResult.val;
+              localStorageManager.set('access_token', access_token);
+              localStorageManager.set<number>('expires', new Date().getTime() + 1000 * expires_in);
+
+              return await getMeAsync(access_token, refreshToken);
+            }
+          } catch {
+            return Err.EMPTY;
+          }
+        }
+      }
       return Err.EMPTY;
     }
-
-    return new Ok({
-      displayName: profile.display_name,
-      profilePhotoUrl: profile.images[0].url,
-    });
   }
 
   return (
     <div className={className}>
       {isLoading && <p>Loading...</p>}
-      {error ? <p>An error occurred</p> : undefined}
-      {profileBadgeProps ? (
-        <ProfileBadge {...profileBadgeProps}></ProfileBadge>
+      {error || profileBadgePropsResult?.err ? <p>An error occurred</p> : undefined}
+      {profileBadgePropsResult?.ok && profileBadgePropsResult.val ? (
+        <ProfileBadge {...profileBadgePropsResult.val}></ProfileBadge>
       ) : (
         <a href="/login">Connect to Spotify</a>
       )}

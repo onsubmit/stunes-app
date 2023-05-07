@@ -10,29 +10,39 @@ export type TokenError =
 
 type AccessTokenShapeType = {
   access_token: ZodString;
-  token_type: ZodString;
-  scope: ZodString;
   expires_in: ZodNumber;
 };
 
-type AccessAndRefreshTokenShapeType = AccessTokenShapeType & {
+type AccessTokenDetailedShapeType = AccessTokenShapeType & {
+  token_type: ZodString;
+  scope: ZodString;
+};
+
+type AccessAndRefreshTokenShapeType = AccessTokenDetailedShapeType & {
   refresh_token: ZodString;
 };
 
 const accessTokenSchemaShape: AccessTokenShapeType = {
   access_token: z.string(),
-  token_type: z.string(),
-  scope: z.string(),
   expires_in: z.number(),
 };
 
-const accessAndRefreshTokenSchemaShape: AccessAndRefreshTokenShapeType = {
+const accessTokenDetailedSchemaShape: AccessTokenDetailedShapeType = {
   ...accessTokenSchemaShape,
+  token_type: z.string(),
+  scope: z.string(),
+};
+
+const accessAndRefreshTokenSchemaShape: AccessAndRefreshTokenShapeType = {
+  ...accessTokenDetailedSchemaShape,
   refresh_token: z.string(),
 };
 
 export const AccessTokenSchema = z.object(accessTokenSchemaShape);
 export type AccessToken = z.infer<typeof AccessTokenSchema>;
+
+export const AccessTokenDetailedSchema = z.object(accessTokenDetailedSchemaShape);
+export type AccessTokenDetailed = z.infer<typeof AccessTokenDetailedSchema>;
 
 export const AccessAndRefreshTokenSchema = z.object(accessAndRefreshTokenSchemaShape);
 export type AccessAndRefreshToken = z.infer<typeof AccessAndRefreshTokenSchema>;
