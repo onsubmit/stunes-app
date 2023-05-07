@@ -27,6 +27,7 @@ function AuthorizeForm() {
     const refreshTokenResult = localStorageManager.get<string>('refresh_token');
     const expiresResult = localStorageManager.get<number>('expires');
 
+    // TODO: Refresh access token if it's expired.
     if (accessTokenResult.ok && refreshTokenResult.ok && expiresResult.ok) {
       if (new Date().getTime() <= expiresResult.val) {
         return new Ok({
