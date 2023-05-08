@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import SpotifyWebApi from 'spotify-web-api-js';
 import { Err, Ok, Result } from 'ts-results';
 
-import { AccessToken, AccessTokenSchema } from '../server/types';
+import { refreshAccessTokenAsync } from '../server';
 import localStorageManager, { LocalStorage } from '../utils/LocalStorage';
+import { getMeAsync } from '../utils/spotifyWebApi/users';
 import { className } from './AuthorizeForm.css';
 import ProfileBadge, { ProfileBadgeProps } from './ProfileBadge';
 
@@ -124,76 +124,23 @@ function AuthorizeForm() {
     return new Ok({ accessToken, refreshToken });
   }
 
-  async function refreshAccessTokenAsync(refreshToken: string): Promise<Result<AccessToken, void>> {
-    try {
-      const response = await fetch(`/refresh_token?refresh_token=${refreshToken}`);
-      const body = await response.json();
-      const parsed = AccessTokenSchema.safeParse(body);
-      if (parsed.success) {
-        return new Ok(parsed.data);
-      }
-    } catch {
-      // ignore
+  function getElement(): JSX.Element {
+    if (isLoading) {
+      return <p>Loading...</p>;
     }
 
-    return Err.EMPTY;
-  }
-
-  async function getMeAsync(
-    accessToken: string,
-    refreshToken: string
-  ): Promise<Result<{ displayName: string; profilePhotoUrl: string }, void>> {
-    const spotifyApi = new SpotifyWebApi();
-    spotifyApi.setAccessToken(accessToken);
-
-    try {
-      const profile = await spotifyApi.getMe();
-      if (!profile.display_name || !profile.images || !profile.images[0].url) {
-        return Err.EMPTY;
-      }
-
-      return new Ok({
-        displayName: profile.display_name,
-        profilePhotoUrl: profile.images[0].url,
-      });
-    } catch (err: unknown) {
-      if (err instanceof XMLHttpRequest) {
-        const request: XMLHttpRequest = err;
-        if (request.status === 401 && request.response) {
-          try {
-            const response = JSON.parse(request.response);
-            if (response?.error?.message === 'The access token expired') {
-              const refreshAccessTokenResult = await refreshAccessTokenAsync(refreshToken);
-              if (!refreshAccessTokenResult.ok) {
-                return Err.EMPTY;
-              }
-
-              const { access_token, expires_in } = refreshAccessTokenResult.val;
-              localStorageManager.set('access_token', access_token);
-              localStorageManager.set<number>('expires', new Date().getTime() + 1000 * expires_in);
-
-              return await getMeAsync(access_token, refreshToken);
-            }
-          } catch {
-            return Err.EMPTY;
-          }
-        }
-      }
-      return Err.EMPTY;
+    if (error || profileBadgePropsResult?.err) {
+      return <p>An error occurred</p>;
     }
+
+    if (profileBadgePropsResult?.ok && profileBadgePropsResult.val) {
+      return <ProfileBadge {...profileBadgePropsResult.val}></ProfileBadge>;
+    }
+
+    return <a href="/login">Connect to Spotify</a>;
   }
 
-  return (
-    <div className={className}>
-      {isLoading && <p>Loading...</p>}
-      {error || profileBadgePropsResult?.err ? <p>An error occurred</p> : undefined}
-      {profileBadgePropsResult?.ok && profileBadgePropsResult.val ? (
-        <ProfileBadge {...profileBadgePropsResult.val}></ProfileBadge>
-      ) : (
-        <a href="/login">Connect to Spotify</a>
-      )}
-    </div>
-  );
+  return <div className={className}>{getElement()}</div>;
 }
 
 export default AuthorizeForm;
