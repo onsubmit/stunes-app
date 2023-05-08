@@ -2,7 +2,7 @@ import { Ok, Result } from 'ts-results';
 
 import { executeAsync } from './spotifyWebApi';
 
-export type CurrentUserProfile = { displayName: string; profilePhotoUrl: string };
+export type CurrentUserProfile = { displayName: string; profilePhotoUrl: string; profileUrl: string };
 
 /**
  * Gets detailed profile information about the current user.
@@ -21,10 +21,12 @@ export async function getCurrentUserProfile(
 
     const displayName = profile.display_name || 'unknown';
     const profilePhotoUrl = profile.images?.at(0)?.url || '';
+    const profileUrl = profile.external_urls.spotify || '';
 
     return new Ok({
       displayName,
       profilePhotoUrl,
+      profileUrl,
     });
   });
 }
