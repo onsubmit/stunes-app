@@ -1,24 +1,39 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Err, Ok, Result } from 'ts-results';
 
 import { refreshAccessTokenAsync } from '../server';
+import Deferred from '../utils/Deferred';
 import localStorageManager from '../utils/LocalStorage';
 import { getCurrentUserProfile } from '../utils/spotifyWebApi/users';
 import { className } from './AuthorizeForm.css';
 import ProfileBadge, { ProfileBadgeProps } from './ProfileBadge';
 
 function AuthorizeForm() {
+  const queryKey = 'currentUserProfile';
+
   const hash = window.location.hash;
+  const deferredLogin = new Deferred<void>();
+
+  let loginPopup: Window | null = null;
+  window.spotifyCallback = function () {
+    if (loginPopup) {
+      loginPopup.close();
+      deferredLogin.resolve();
+    }
+  };
+
   if (hash) {
     setLocalStorageFromHash();
   }
+
+  const queryClient = useQueryClient();
 
   const {
     isLoading,
     error,
     data: profileBadgePropsResult,
   } = useQuery({
-    queryKey: ['currentUserProfile'],
+    queryKey: [queryKey],
     retry: false,
     refetchOnReconnect: false,
     refetchOnMount: false,
@@ -37,26 +52,46 @@ function AuthorizeForm() {
   function setLocalStorageFromHash() {
     const getHashDataResult = getHashData();
     if (!getHashDataResult.ok) {
-      // Nothing on the hash.
+      const errorResult = getHashDataResult.val;
+      if (!errorResult) {
+        // Nothing on the hash.
+        return;
+      }
+
+      // TODO: Do something with these.
+      //const { error, message } = errorResult;
+      window.opener.spotifyCallback();
       return;
     }
-
-    // Remove the hash from the location bar so the tokens aren't shown directly to the user.
-    history.pushState('', document.title, window.location.pathname);
 
     const { accessToken, refreshToken, expiresInMs } = getHashDataResult.val;
     localStorageManager.set('access_token', accessToken);
     localStorageManager.set('refresh_token', refreshToken);
     localStorageManager.set<number>('expires', new Date().getTime() + expiresInMs);
+
+    window.opener.spotifyCallback();
   }
 
-  function getHashData(): Result<{ accessToken: string; refreshToken: string; expiresInMs: number }, void> {
+  function getHashData(): Result<
+    { accessToken: string; refreshToken: string; expiresInMs: number },
+    { error: string; message: string } | void
+  > {
     const accessTokenResult = getHashValue('access_token');
     const refreshTokenResult = getHashValue('refresh_token');
     const expiresInResult = getHashValue('expires_in');
 
     if (!accessTokenResult.ok || !refreshTokenResult.ok || !expiresInResult.ok) {
-      return Err.EMPTY;
+      const errorResult = getHashValue('error');
+      const messageResult = getHashValue('message');
+
+      if (!errorResult.ok || !messageResult.ok) {
+        return Err.EMPTY;
+      }
+
+      return new Err({
+        error: errorResult.val,
+        message: messageResult.val,
+      });
     }
 
     const expiresInSeconds = parseInt(expiresInResult.val, 10);
@@ -124,6 +159,17 @@ function AuthorizeForm() {
     });
   }
 
+  async function handleLogin(event: React.MouseEvent<HTMLAnchorElement>) {
+    event.preventDefault();
+
+    loginPopup = window.open('/login', 'loginWindow', 'menubar=no,location=no,status=no,width=800,height=1000');
+
+    await deferredLogin.promise;
+    queryClient.invalidateQueries([queryKey]);
+
+    return false;
+  }
+
   function getElement(): JSX.Element {
     if (isLoading) {
       return <p>Loading...</p>;
@@ -137,8 +183,11 @@ function AuthorizeForm() {
       return <ProfileBadge {...profileBadgePropsResult.val}></ProfileBadge>;
     }
 
-    // TODO: Do this in a popup window.
-    return <a href="/login">Connect to Spotify</a>;
+    return (
+      <a href="/login" onClick={handleLogin}>
+        Connect to Spotify
+      </a>
+    );
   }
 
   return <div className={className}>{getElement()}</div>;
