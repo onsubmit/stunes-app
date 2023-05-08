@@ -1,3 +1,3 @@
 import { style } from 'typestyle';
 
-export const className = style({ color: 'red' });
+export const className = style({ fontFamily: 'Rubik', color: '#fff' });
