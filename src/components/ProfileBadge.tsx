@@ -9,7 +9,7 @@ function ProfileBadge({ displayName, profilePhotoUrl }: ProfileBadgeProps) {
   return (
     <div className={className}>
       <>
-        <img className={profilePhoto} src={profilePhotoUrl}></img>
+        {profilePhotoUrl && <img className={profilePhoto} src={profilePhotoUrl}></img>}
         <div>{displayName}</div>
       </>
     </div>

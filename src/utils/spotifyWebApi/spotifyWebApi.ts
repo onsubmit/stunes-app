@@ -6,12 +6,22 @@ import localStorageManager from '../LocalStorage';
 
 import SpotifyWebApiJs = SpotifyWebApi.SpotifyWebApiJs;
 
+/**
+ * Executes a Spotify Web API. Will attempt to refresh the access token if needed.
+ *
+ * @export
+ * @template T The type of the response.
+ * @param {string} accessToken The access token.
+ * @param {string} refreshToken The refresh token.
+ * @param {(spotifyApi: SpotifyWebApiJs) => Promise<Result<T, void>>} fnAsync An asynchronous function that invokes a single Spotify Web API.
+ * @return {*}  {Promise<Result<T, void>>} A promise that resolves to the result of the function that invokes a single Spotify Web API.
+ */
 export async function executeAsync<T>(
   accessToken: string,
   refreshToken: string,
   fnAsync: (spotifyApi: SpotifyWebApiJs) => Promise<Result<T, void>>
 ): Promise<Result<T, void>> {
-  return await executeAsyncInternal<T>(accessToken, refreshToken, fnAsync, true);
+  return await executeAsyncInternal<T>(accessToken, refreshToken, fnAsync, true /* allowTokenRefresh */);
 }
 
 async function executeAsyncInternal<T>(
@@ -29,6 +39,7 @@ async function executeAsyncInternal<T>(
     if (err instanceof XMLHttpRequest) {
       const request = err;
 
+      // The response is 401: Unauthorized when the access token has expired.
       if (request.status !== 401 || !request.response) {
         return Err.EMPTY;
       }
@@ -48,7 +59,7 @@ async function executeAsyncInternal<T>(
         localStorageManager.set('access_token', access_token);
         localStorageManager.set<number>('expires', new Date().getTime() + 1000 * expires_in);
 
-        return await executeAsyncInternal<T>(access_token, refreshToken, fnAsync, false);
+        return await executeAsyncInternal<T>(access_token, refreshToken, fnAsync, false /* allowTokenRefresh */);
       } catch {
         return Err.EMPTY;
       }

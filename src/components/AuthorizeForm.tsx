@@ -3,7 +3,7 @@ import { Err, Ok, Result } from 'ts-results';
 
 import { refreshAccessTokenAsync } from '../server';
 import localStorageManager, { LocalStorage } from '../utils/LocalStorage';
-import { getMeAsync } from '../utils/spotifyWebApi/users';
+import { getCurrentUserProfile } from '../utils/spotifyWebApi/users';
 import { className } from './AuthorizeForm.css';
 import ProfileBadge, { ProfileBadgeProps } from './ProfileBadge';
 
@@ -54,7 +54,7 @@ function AuthorizeForm() {
     }
 
     const { accessToken, refreshToken } = result.val;
-    return await getMeAsync(accessToken, refreshToken);
+    return await getCurrentUserProfile(accessToken, refreshToken);
   }
 
   function getLocalStorageData(): Result<{ accessToken: string; refreshToken: string; expires: number }, void> {

@@ -1,20 +1,30 @@
-import { Err, Ok, Result } from 'ts-results';
+import { Ok, Result } from 'ts-results';
 
 import { executeAsync } from './spotifyWebApi';
 
-export async function getMeAsync(
+export type CurrentUserProfile = { displayName: string; profilePhotoUrl: string };
+
+/**
+ * Gets detailed profile information about the current user.
+ *
+ * @export
+ * @param {string} accessToken The access token.
+ * @param {string} refreshToken The refresh token.
+ * @return {*}  {Promise<Result<CurrentUserProfile, void>>} A promise that resolves to the result of the data retrieval.
+ */
+export async function getCurrentUserProfile(
   accessToken: string,
   refreshToken: string
-): Promise<Result<{ displayName: string; profilePhotoUrl: string }, void>> {
+): Promise<Result<CurrentUserProfile, void>> {
   return executeAsync(accessToken, refreshToken, async (spotifyApi) => {
     const profile = await spotifyApi.getMe();
-    if (!profile.display_name || !profile.images || !profile.images[0].url) {
-      return Err.EMPTY;
-    }
+
+    const displayName = profile.display_name || 'unknown';
+    const profilePhotoUrl = profile.images?.at(0)?.url || '';
 
     return new Ok({
-      displayName: profile.display_name,
-      profilePhotoUrl: profile.images[0].url,
+      displayName,
+      profilePhotoUrl,
     });
   });
 }
