@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Err, Ok, Result } from 'ts-results';
 
 import { refreshAccessTokenAsync } from '../server';
-import localStorageManager, { LocalStorage } from '../utils/LocalStorage';
+import localStorageManager from '../utils/LocalStorage';
 import { getCurrentUserProfile } from '../utils/spotifyWebApi/users';
 import { className } from './AuthorizeForm.css';
 import ProfileBadge, { ProfileBadgeProps } from './ProfileBadge';
@@ -26,51 +26,28 @@ function AuthorizeForm() {
 
     queryFn: async () => {
       const propsResult = await getProfileBadgePropsAsync();
-      if (propsResult.ok) {
-        return new Ok(propsResult.val);
+      if (!propsResult.ok) {
+        return Err.EMPTY;
       }
 
-      return Err.EMPTY;
+      return new Ok(propsResult.val);
     },
   });
 
   function setLocalStorageFromHash() {
     const getHashDataResult = getHashData();
-    if (getHashDataResult.ok) {
-      // Remove the hash so the tokens aren't shown directly to the user.
-      history.pushState('', document.title, window.location.pathname);
-
-      const { accessToken, refreshToken, expiresInMs } = getHashDataResult.val;
-      localStorageManager.set('access_token', accessToken);
-      localStorageManager.set('refresh_token', refreshToken);
-      localStorageManager.set<number>('expires', new Date().getTime() + expiresInMs);
-    }
-  }
-
-  async function getProfileBadgePropsAsync(): Promise<Result<ProfileBadgeProps | void, void>> {
-    const result = await getOrRefreshAccessTokenAsync();
-    if (!result.ok) {
-      return Ok.EMPTY;
+    if (!getHashDataResult.ok) {
+      // Nothing on the hash.
+      return;
     }
 
-    const { accessToken, refreshToken } = result.val;
-    return await getCurrentUserProfile(accessToken, refreshToken);
-  }
+    // Remove the hash from the location bar so the tokens aren't shown directly to the user.
+    history.pushState('', document.title, window.location.pathname);
 
-  function getLocalStorageData(): Result<{ accessToken: string; refreshToken: string; expires: number }, void> {
-    const accessTokenResult = localStorageManager.get<string>('access_token');
-    const refreshTokenResult = localStorageManager.get<string>('refresh_token');
-    const expiresResult = localStorageManager.get<number>('expires');
-
-    if (accessTokenResult.ok && refreshTokenResult.ok && expiresResult.ok) {
-      return new Ok({
-        accessToken: accessTokenResult.val,
-        refreshToken: refreshTokenResult.val,
-        expires: expiresResult.val,
-      });
-    }
-
-    return Err.EMPTY;
+    const { accessToken, refreshToken, expiresInMs } = getHashDataResult.val;
+    localStorageManager.set('access_token', accessToken);
+    localStorageManager.set('refresh_token', refreshToken);
+    localStorageManager.set<number>('expires', new Date().getTime() + expiresInMs);
   }
 
   function getHashData(): Result<{ accessToken: string; refreshToken: string; expiresInMs: number }, void> {
@@ -78,26 +55,33 @@ function AuthorizeForm() {
     const refreshTokenResult = getHashValue('refresh_token');
     const expiresInResult = getHashValue('expires_in');
 
-    if (accessTokenResult.ok && refreshTokenResult.ok && expiresInResult.ok) {
-      const expiresInSeconds = parseInt(expiresInResult.val, 10);
-      return new Ok({
-        accessToken: accessTokenResult.val,
-        refreshToken: refreshTokenResult.val,
-        expiresInMs: 1000 * (isNaN(expiresInSeconds) ? 3600 : expiresInSeconds),
-      });
+    if (!accessTokenResult.ok || !refreshTokenResult.ok || !expiresInResult.ok) {
+      return Err.EMPTY;
     }
 
-    return Err.EMPTY;
+    const expiresInSeconds = parseInt(expiresInResult.val, 10);
+    return new Ok({
+      accessToken: accessTokenResult.val,
+      refreshToken: refreshTokenResult.val,
+      expiresInMs: 1000 * (isNaN(expiresInSeconds) ? 3600 : expiresInSeconds),
+    });
   }
 
-  function getHashValue(key: keyof Omit<LocalStorage, 'expires'> | 'expires_in'): Result<string, void> {
+  function getHashValue(key: string): Result<string, void> {
     const hashParams = new URLSearchParams(hash.slice(1));
     const value = hashParams.get(key);
-    if (value) {
-      return new Ok(value);
+    return value ? new Ok(value) : Err.EMPTY;
+  }
+
+  async function getProfileBadgePropsAsync(): Promise<Result<ProfileBadgeProps | void, void>> {
+    const result = await getOrRefreshAccessTokenAsync();
+    if (!result.ok) {
+      // If the user isn't signed in, don't treat it as an error.
+      return Ok.EMPTY;
     }
 
-    return Err.EMPTY;
+    const { accessToken, refreshToken } = result.val;
+    return await getCurrentUserProfile(accessToken, refreshToken);
   }
 
   async function getOrRefreshAccessTokenAsync(): Promise<Result<{ accessToken: string; refreshToken: string }, void>> {
@@ -122,6 +106,22 @@ function AuthorizeForm() {
     localStorageManager.set<number>('expires', new Date().getTime() + 1000 * expiresInSeconds);
 
     return new Ok({ accessToken, refreshToken });
+  }
+
+  function getLocalStorageData(): Result<{ accessToken: string; refreshToken: string; expires: number }, void> {
+    const accessTokenResult = localStorageManager.get<string>('access_token');
+    const refreshTokenResult = localStorageManager.get<string>('refresh_token');
+    const expiresResult = localStorageManager.get<number>('expires');
+
+    if (!accessTokenResult.ok || !refreshTokenResult.ok || !expiresResult.ok) {
+      return Err.EMPTY;
+    }
+
+    return new Ok({
+      accessToken: accessTokenResult.val,
+      refreshToken: refreshTokenResult.val,
+      expires: expiresResult.val,
+    });
   }
 
   function getElement(): JSX.Element {
