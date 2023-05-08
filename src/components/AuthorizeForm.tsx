@@ -137,6 +137,7 @@ function AuthorizeForm() {
       return <ProfileBadge {...profileBadgePropsResult.val}></ProfileBadge>;
     }
 
+    // TODO: Do this in a popup window.
     return <a href="/login">Connect to Spotify</a>;
   }
 
