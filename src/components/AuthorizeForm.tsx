@@ -10,23 +10,20 @@ import ProfileBadge, { ProfileBadgeProps } from './ProfileBadge';
 
 function AuthorizeForm() {
   const queryKey = 'currentUserProfile';
+  const queryClient = useQueryClient();
 
   const hash = window.location.hash;
   const deferredLogin = new Deferred<void>();
 
   let loginPopup: Window | null = null;
-  window.spotifyCallback = function () {
-    if (loginPopup) {
-      loginPopup.close();
-      deferredLogin.resolve();
-    }
+  window.spotifyCallback = () => {
+    loginPopup?.close();
+    deferredLogin.resolve();
   };
 
   if (hash) {
     setLocalStorageFromHash();
   }
-
-  const queryClient = useQueryClient();
 
   const {
     isLoading,
@@ -50,7 +47,7 @@ function AuthorizeForm() {
   });
 
   function setLocalStorageFromHash() {
-    const getHashDataResult = getHashData();
+    const getHashDataResult = getAccessTokenFromHash();
     if (!getHashDataResult.ok) {
       const errorResult = getHashDataResult.val;
       if (!errorResult) {
@@ -58,9 +55,8 @@ function AuthorizeForm() {
         return;
       }
 
-      // TODO: Do something with these.
-      //const { error, message } = errorResult;
-      window.opener.spotifyCallback();
+      // Something on the hash, likely an error.
+      window.opener?.spotifyCallback();
       return;
     }
 
@@ -69,10 +65,10 @@ function AuthorizeForm() {
     localStorageManager.set('refresh_token', refreshToken);
     localStorageManager.set<number>('expires', new Date().getTime() + expiresInMs);
 
-    window.opener.spotifyCallback();
+    window.opener?.spotifyCallback();
   }
 
-  function getHashData(): Result<
+  function getAccessTokenFromHash(): Result<
     { accessToken: string; refreshToken: string; expiresInMs: number },
     { error: string; message: string } | void
   > {
@@ -120,7 +116,7 @@ function AuthorizeForm() {
   }
 
   async function getOrRefreshAccessTokenAsync(): Promise<Result<{ accessToken: string; refreshToken: string }, void>> {
-    const localStorageResult = getLocalStorageData();
+    const localStorageResult = getAccessTokenFromLocalStorage();
     if (!localStorageResult.ok) {
       return Err.EMPTY;
     }
@@ -143,7 +139,10 @@ function AuthorizeForm() {
     return new Ok({ accessToken, refreshToken });
   }
 
-  function getLocalStorageData(): Result<{ accessToken: string; refreshToken: string; expires: number }, void> {
+  function getAccessTokenFromLocalStorage(): Result<
+    { accessToken: string; refreshToken: string; expires: number },
+    void
+  > {
     const accessTokenResult = localStorageManager.get<string>('access_token');
     const refreshTokenResult = localStorageManager.get<string>('refresh_token');
     const expiresResult = localStorageManager.get<number>('expires');
@@ -162,7 +161,7 @@ function AuthorizeForm() {
   async function handleLogin(event: React.MouseEvent<HTMLAnchorElement>) {
     event.preventDefault();
 
-    loginPopup = window.open('/login', 'loginWindow', 'menubar=no,location=no,status=no,width=800,height=1000');
+    loginPopup = window.open('/login', 'loginWindow', 'popup=yes,width=800,height=1000');
 
     await deferredLogin.promise;
     queryClient.invalidateQueries([queryKey]);
@@ -172,11 +171,11 @@ function AuthorizeForm() {
 
   function getElement(): JSX.Element {
     if (isLoading) {
-      return <p>Loading...</p>;
+      return <p>Loading Spotify profile...</p>;
     }
 
     if (error || profileBadgePropsResult?.err) {
-      return <p>An error occurred</p>;
+      return <p>An error occurred loading your Spotify profile. Please try again.</p>;
     }
 
     if (profileBadgePropsResult?.ok && profileBadgePropsResult.val) {
