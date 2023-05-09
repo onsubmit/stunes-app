@@ -1,3 +1,5 @@
 import { style } from 'typestyle';
 
-export const className = style({});
+export const className = style({
+  marginLeft: 'auto',
+});

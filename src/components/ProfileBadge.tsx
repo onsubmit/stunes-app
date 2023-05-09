@@ -1,4 +1,4 @@
-import { className, profilePhoto } from './ProfileBadge.css';
+import { anchorClass, className, profilePhoto } from './ProfileBadge.css';
 
 export type ProfileBadgeProps = {
   displayName: string;
@@ -7,7 +7,7 @@ export type ProfileBadgeProps = {
 
 function ProfileBadge({ displayName, profilePhotoUrl }: ProfileBadgeProps) {
   return (
-    <a className={className} href="https://spotify.com/account" target="_blank" rel="noreferrer">
+    <a className={anchorClass} href="https://spotify.com/account" target="_blank" rel="noreferrer">
       <div className={className}>
         {profilePhotoUrl && <img className={profilePhoto} src={profilePhotoUrl}></img>}
         <div>{displayName}</div>

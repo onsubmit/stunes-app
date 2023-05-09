@@ -9,16 +9,16 @@ cssRule(':root', {
 });
 
 cssRule('a, a:visited', {
-  color: '#1ED760',
+  color: '#fff',
   textDecoration: 'none',
 });
 
 cssRule('a:hover', {
-  color: '#1ED760',
+  color: '#fff',
   textDecoration: 'underline',
 });
 
 cssRule('a:active, a:visited:active', {
-  color: '#169C46',
+  color: '#fff',
   textDecoration: 'underline',
 });
