@@ -17,7 +17,13 @@ function AuthorizeForm() {
 
   let loginPopup: Window | null = null;
   window.spotifyCallback = () => {
-    loginPopup?.close();
+    if (loginPopup) {
+      loginPopup.close();
+    } else {
+      // Remove the hash from the location bar so the tokens aren't shown directly to the user.
+      history.pushState('', document.title, window.location.pathname);
+    }
+
     deferredLogin.resolve();
   };
 
@@ -56,7 +62,7 @@ function AuthorizeForm() {
       }
 
       // Something on the hash, likely an error.
-      window.opener?.spotifyCallback();
+      callSpotifyCallback();
       return;
     }
 
@@ -65,7 +71,7 @@ function AuthorizeForm() {
     localStorageManager.set('refresh_token', refreshToken);
     localStorageManager.set<number>('expires', new Date().getTime() + expiresInMs);
 
-    window.opener?.spotifyCallback();
+    callSpotifyCallback();
   }
 
   function getAccessTokenFromHash(): Result<
@@ -102,6 +108,14 @@ function AuthorizeForm() {
     const hashParams = new URLSearchParams(hash.slice(1));
     const value = hashParams.get(key);
     return value ? new Ok(value) : Err.EMPTY;
+  }
+
+  function callSpotifyCallback() {
+    if (window.opener) {
+      window.opener.spotifyCallback();
+    } else {
+      window.spotifyCallback();
+    }
   }
 
   async function getProfileBadgePropsAsync(): Promise<Result<ProfileBadgeProps | void, void>> {
@@ -162,6 +176,15 @@ function AuthorizeForm() {
     event.preventDefault();
 
     loginPopup = window.open('/login', 'loginWindow', 'popup=yes,width=800,height=1000');
+    if (!loginPopup) {
+      // Popup blocked, try a new tab.
+      loginPopup = window.open('/login', 'loginWindow');
+    }
+
+    if (!loginPopup) {
+      // New tab blocked, open in same tab.
+      window.location.href = '/login';
+    }
 
     await deferredLogin.promise;
     queryClient.invalidateQueries([queryKey]);
