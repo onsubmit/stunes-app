@@ -5,4 +5,5 @@ export const className = style({
   flexDirection: 'row',
   alignItems: 'stretch',
   width: '100%',
+  background: '#121212',
 });

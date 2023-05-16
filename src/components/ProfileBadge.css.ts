@@ -5,7 +5,8 @@ export const className = style({
   height: '64px',
   flexDirection: 'row',
   alignItems: 'center',
-  gap: '10px',
+  gap: '12px',
+  marginRight: '12px',
 });
 
 export const profilePhoto = style({
@@ -22,18 +23,3 @@ export const anchorClass = style({
     '&&&&:active': { color: '#169C46' },
   },
 });
-
-// $nest: {
-//   'a, a:visited': {
-//     color: '#1ED760',
-//     textDecoration: 'none',
-//   },
-//   'a:hover': {
-//     color: '#1ED760',
-//     textDecoration: 'underline',
-//   },
-//   'a:active, a:visited:active': {
-//     color: '#169C46',
-//     textDecoration: 'underline',
-//   },
-// },
