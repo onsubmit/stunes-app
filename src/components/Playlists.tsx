@@ -3,7 +3,7 @@ import { Err, Ok, Result } from 'ts-results';
 
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import { getUserPlaylistsAsync, Playlist } from '../utils/spotifyWebApi/users';
-import { className, playlistInfo, playlistPhoto } from './Playlists.css';
+import { anchorClass, className, playlistInfo, playlistPhoto } from './Playlists.css';
 
 function Playlists() {
   const queryKey = 'getPlaylists';
@@ -53,12 +53,16 @@ function Playlists() {
           <div className={className}>
             {currentPlaylistsResult.val.map((playlist) => {
               return (
-                <div key={playlist.id} className={playlistInfo}>
-                  <div>
-                    {playlist.playlistPhotoUrl && <img className={playlistPhoto} src={playlist.playlistPhotoUrl}></img>}
+                <a key={playlist.id} href="#" className={anchorClass}>
+                  <div className={playlistInfo}>
+                    <div>
+                      {playlist.playlistPhotoUrl && (
+                        <img className={playlistPhoto} src={playlist.playlistPhotoUrl}></img>
+                      )}
+                    </div>
+                    <div>{playlist.name}</div>
                   </div>
-                  <div>{playlist.name}</div>
-                </div>
+                </a>
               );
             })}
           </div>
