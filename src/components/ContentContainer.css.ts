@@ -5,5 +5,5 @@ export const className = style({
   background: '#121212',
   borderRadius: '6px',
   borderColor: '#000',
-  margin: '6px',
+  margin: '0 6px 6px 0',
 });

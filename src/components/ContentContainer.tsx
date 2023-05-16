@@ -1,7 +1,7 @@
 import { className } from './ContentContainer.css';
 
 function ContentContainer() {
-  return <div className={className}>hi</div>;
+  return <div className={className}></div>;
 }
 
 export default ContentContainer;

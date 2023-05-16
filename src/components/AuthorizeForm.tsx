@@ -4,7 +4,7 @@ import { Err, Ok, Result } from 'ts-results';
 import Deferred from '../utils/Deferred';
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import localStorageManager from '../utils/LocalStorage';
-import { getCurrentUserProfileAsync } from '../utils/spotifyWebApi/users';
+import { CurrentUserProfile, getCurrentUserProfileAsync } from '../utils/spotifyWebApi/users';
 import { className } from './AuthorizeForm.css';
 import ProfileBadge, { ProfileBadgeProps } from './ProfileBadge';
 
@@ -43,12 +43,21 @@ function AuthorizeForm() {
     refetchOnWindowFocus: false,
 
     queryFn: async () => {
-      const propsResult = await getProfileBadgePropsAsync();
+      const propsResult = await getUserProfileAsync();
       if (!propsResult.ok) {
         return Err.EMPTY;
       }
 
-      return new Ok(propsResult.val);
+      if (!propsResult.val) {
+        return propsResult;
+      }
+
+      const { displayName, profilePhotoUrl, id } = propsResult.val;
+
+      localStorageManager.set('userId', id);
+
+      const profileBadgeProps: ProfileBadgeProps = { displayName, profilePhotoUrl };
+      return new Ok(profileBadgeProps);
     },
   });
 
@@ -118,7 +127,7 @@ function AuthorizeForm() {
     }
   }
 
-  async function getProfileBadgePropsAsync(): Promise<Result<ProfileBadgeProps | void, void>> {
+  async function getUserProfileAsync(): Promise<Result<CurrentUserProfile | void, void>> {
     const result = await getOrRefreshAccessTokenAsync();
     if (!result.ok) {
       // If the user isn't signed in, don't treat it as an error.

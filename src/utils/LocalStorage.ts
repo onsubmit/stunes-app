@@ -4,6 +4,7 @@ export type LocalStorage = {
   access_token: string;
   refresh_token: string;
   expires: number;
+  userId: string;
 };
 
 export type LocalStorageValue = LocalStorage[keyof LocalStorage];
