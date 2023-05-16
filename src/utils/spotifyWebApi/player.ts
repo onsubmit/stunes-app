@@ -10,7 +10,7 @@ export type CurrentTrack = {
   albumArtUrl: string;
 };
 
-export async function getCurrentlyPlayingTrack(
+export async function getCurrentlyPlayingTrackAsync(
   accessToken: string,
   refreshToken: string
 ): Promise<Result<CurrentTrack, void>> {

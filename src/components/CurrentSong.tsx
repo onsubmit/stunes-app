@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Err, Ok, Result } from 'ts-results';
 
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
-import { CurrentTrack, getCurrentlyPlayingTrack } from '../utils/spotifyWebApi/player';
+import { CurrentTrack, getCurrentlyPlayingTrackAsync } from '../utils/spotifyWebApi/player';
 import { albumArtPhoto, className, songNameClass } from './CurrentSong.css';
 
 function CurrentSong() {
@@ -35,7 +35,7 @@ function CurrentSong() {
     }
 
     const { accessToken, refreshToken } = result.val;
-    return await getCurrentlyPlayingTrack(accessToken, refreshToken);
+    return await getCurrentlyPlayingTrackAsync(accessToken, refreshToken);
   }
 
   function getElement(): JSX.Element {
