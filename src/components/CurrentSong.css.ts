@@ -10,6 +10,8 @@ export const className = style({
 export const albumArtPhoto = style({
   width: '64px',
   height: '64px',
+  borderRadius: '6px',
+  borderColor: '#000',
 });
 
 export const songNameClass = style({

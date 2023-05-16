@@ -54,7 +54,7 @@ function CurrentSong() {
         return (
           <div className={className}>
             {albumArtUrl && (
-              <a href={albumUrl} target="_blank" rel="noreferrer">
+              <a href={albumUrl} className={albumArtPhoto} target="_blank" rel="noreferrer">
                 <img className={albumArtPhoto} src={albumArtUrl}></img>
               </a>
             )}
