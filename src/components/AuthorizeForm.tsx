@@ -4,7 +4,7 @@ import { Err, Ok, Result } from 'ts-results';
 import Deferred from '../utils/Deferred';
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import localStorageManager from '../utils/LocalStorage';
-import { getCurrentUserProfile } from '../utils/spotifyWebApi/users';
+import { getCurrentUserProfileAsync } from '../utils/spotifyWebApi/users';
 import { className } from './AuthorizeForm.css';
 import ProfileBadge, { ProfileBadgeProps } from './ProfileBadge';
 
@@ -126,7 +126,7 @@ function AuthorizeForm() {
     }
 
     const { accessToken, refreshToken } = result.val;
-    return await getCurrentUserProfile(accessToken, refreshToken);
+    return await getCurrentUserProfileAsync(accessToken, refreshToken);
   }
 
   async function handleLogin(event: React.MouseEvent<HTMLAnchorElement>) {

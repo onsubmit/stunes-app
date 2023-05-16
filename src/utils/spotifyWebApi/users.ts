@@ -12,7 +12,7 @@ export type CurrentUserProfile = { displayName: string; profilePhotoUrl: string 
  * @param {string} refreshToken The refresh token.
  * @return {*}  {Promise<Result<CurrentUserProfile, void>>} A promise that resolves to the result of the data retrieval.
  */
-export async function getCurrentUserProfile(
+export async function getCurrentUserProfileAsync(
   accessToken: string,
   refreshToken: string
 ): Promise<Result<CurrentUserProfile, void>> {
