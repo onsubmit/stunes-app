@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { Err, Ok, Result } from 'ts-results';
+import { classes } from 'typestyle';
 
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import { getUserPlaylistsAsync, Playlist } from '../utils/spotifyWebApi/users';
-import { anchorClass, className, playlistInfo, playlistPhoto } from './Playlists.css';
+import { anchorClass, className, playlistInfo, playlistPhoto, statusClass } from './Playlists.css';
 
 function Playlists() {
   const queryKey = 'getPlaylists';
@@ -40,11 +41,15 @@ function Playlists() {
 
   function getElement(): JSX.Element {
     if (isLoading) {
-      return <p>Getting playlists...</p>;
+      return <div className={classes(className, statusClass)}>Getting playlists...</div>;
     }
 
     if (error || currentPlaylistsResult?.err) {
-      return <p>An error occurred loading your playlists. Please try again.</p>;
+      return (
+        <div className={classes(className, statusClass)}>
+          An error occurred loading your playlists. Please try again.
+        </div>
+      );
     }
 
     if (currentPlaylistsResult?.ok) {
@@ -70,7 +75,7 @@ function Playlists() {
       }
     }
 
-    return <div className={className}>No playlists.</div>;
+    return <div className={classes(className, statusClass)}>No playlists found</div>;
   }
 
   return getElement();

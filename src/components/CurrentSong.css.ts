@@ -5,6 +5,11 @@ export const className = style({
   flexDirection: 'row',
   alignItems: 'center',
   gap: '10px',
+  marginLeft: '12px',
+});
+
+export const statusClass = style({
+  color: '#999',
 });
 
 export const albumArtPhoto = style({

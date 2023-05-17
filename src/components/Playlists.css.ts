@@ -1,18 +1,25 @@
 import { style } from 'typestyle';
 
 const sideBarWidth = '350px';
+const sideBarHeight = 'calc(100vh - 64px - 32px)';
 
 export const className = style({
   width: sideBarWidth,
   minWidth: sideBarWidth,
   maxWidth: sideBarWidth,
-  maxHeight: 'calc(100vh - 64px - 32px)',
+  height: sideBarHeight,
+  minHeight: sideBarHeight,
+  maxHeight: sideBarHeight,
   background: '#121212',
   borderRadius: '6px',
   borderColor: '#000',
   margin: '0 6px 6px 6px',
   overflowY: 'scroll',
   padding: '6px',
+});
+
+export const statusClass = style({
+  color: '#999',
 });
 
 export const playlistInfo = style({

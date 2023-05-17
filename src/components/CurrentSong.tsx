@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { Err, Ok, Result } from 'ts-results';
+import { classes } from 'typestyle';
 
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import { CurrentTrack, getCurrentlyPlayingTrackAsync } from '../utils/spotifyWebApi/player';
-import { albumArtPhoto, className, songNameClass } from './CurrentSong.css';
+import { albumArtPhoto, className, songNameClass, statusClass } from './CurrentSong.css';
 
 function CurrentSong() {
   const queryKey = 'getCurrentSong';
@@ -40,11 +41,15 @@ function CurrentSong() {
 
   function getElement(): JSX.Element {
     if (isLoading) {
-      return <p>Getting current song...</p>;
+      return <div className={classes(className, statusClass)}>Getting current song...</div>;
     }
 
     if (error || currentSongResult?.err) {
-      return <p>An error occurred loading your current song. Please try again.</p>;
+      return (
+        <div className={classes(className, statusClass)}>
+          An error occurred loading your current song. Please try again.
+        </div>
+      );
     }
 
     if (currentSongResult?.ok) {
@@ -52,7 +57,7 @@ function CurrentSong() {
         const { artists, song, songUrl, albumUrl, albumArtUrl } = currentSongResult.val;
 
         return (
-          <div className={className}>
+          <div className={className} style={albumArtUrl ? { marginLeft: 0 } : undefined}>
             {albumArtUrl && (
               <a href={albumUrl} className={albumArtPhoto} target="_blank" rel="noreferrer">
                 <img className={albumArtPhoto} src={albumArtUrl}></img>
@@ -82,7 +87,7 @@ function CurrentSong() {
       }
     }
 
-    return <div className={className}>No currently playing track.</div>;
+    return <div className={classes(className, statusClass)}>No currently playing track</div>;
   }
 
   return getElement();
