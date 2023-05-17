@@ -20,6 +20,6 @@ export const anchorClass = style({
     '&:link': { color: '#1ED760' },
     '&&:visited': { color: '#1ED760' },
     '&&&:hover': { color: '#1ED760' },
-    '&&&&:active': { color: '#169C46' },
+    '&&&&:active': { color: '#1ED760' },
   },
 });
