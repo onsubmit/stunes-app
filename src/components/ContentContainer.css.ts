@@ -7,3 +7,7 @@ export const className = style({
   borderColor: '#000',
   margin: '0 6px 6px 0',
 });
+
+export const statusClass = style({
+  color: '#999',
+});
