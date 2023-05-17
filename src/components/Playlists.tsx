@@ -6,7 +6,11 @@ import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAs
 import { getUserPlaylistsAsync, Playlist } from '../utils/spotifyWebApi/users';
 import { anchorClass, className, playlistInfo, playlistPhoto, statusClass } from './Playlists.css';
 
-function Playlists() {
+type PlaylistsProps = {
+  updateSelectedPlaylists: (newSelectedPlaylists: string[]) => void;
+};
+
+function Playlists({ updateSelectedPlaylists }: PlaylistsProps) {
   const queryKey = 'getPlaylists';
   const {
     isLoading,
@@ -58,7 +62,12 @@ function Playlists() {
           <div className={className}>
             {currentPlaylistsResult.val.map((playlist) => {
               return (
-                <a key={playlist.id} href="#" className={anchorClass}>
+                <a
+                  key={playlist.id}
+                  href="#"
+                  className={anchorClass}
+                  onClick={() => updateSelectedPlaylists([playlist.id])}
+                >
                   <div className={playlistInfo}>
                     <div>
                       {playlist.playlistPhotoUrl && (

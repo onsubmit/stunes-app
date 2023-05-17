@@ -1,7 +1,11 @@
 import { className } from './ContentContainer.css';
 
-function ContentContainer() {
-  return <div className={className}></div>;
+type ContentContainerProps = {
+  selectedPlaylists: string[];
+};
+
+function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
+  return <div className={className}>{selectedPlaylists.join(',')}</div>;
 }
 
 export default ContentContainer;
