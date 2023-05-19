@@ -14,12 +14,13 @@ export const className = style({
   borderRadius: '6px',
   borderColor: '#000',
   margin: '0 6px 6px 6px',
-  overflowY: 'scroll',
+  overflowY: 'auto',
   padding: '6px',
 });
 
 export const statusClass = style({
   color: '#999',
+  margin: '6px',
 });
 
 export const playlistInfo = style({
@@ -27,7 +28,6 @@ export const playlistInfo = style({
   flexDirection: 'row',
   alignItems: 'center',
   gap: '12px',
-  //margin: '12px',
 });
 
 export const playlistPhoto = style({

@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { Err, Ok, Result } from 'ts-results';
-import { classes } from 'typestyle';
 
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import { getUserPlaylistsAsync, Playlist } from '../utils/spotifyWebApi/users';
@@ -45,21 +44,17 @@ function Playlists({ updateSelectedPlaylists }: PlaylistsProps) {
 
   function getElement(): JSX.Element {
     if (isLoading) {
-      return <div className={classes(className, statusClass)}>Getting playlists...</div>;
+      return <div className={statusClass}>Getting playlists...</div>;
     }
 
     if (error || currentPlaylistsResult?.err) {
-      return (
-        <div className={classes(className, statusClass)}>
-          An error occurred loading your playlists. Please try again.
-        </div>
-      );
+      return <div className={statusClass}>An error occurred loading your playlists. Please try again.</div>;
     }
 
     if (currentPlaylistsResult?.ok) {
       if (currentPlaylistsResult.val) {
         return (
-          <div className={className}>
+          <>
             {currentPlaylistsResult.val.map((playlist) => {
               return (
                 <a
@@ -79,15 +74,15 @@ function Playlists({ updateSelectedPlaylists }: PlaylistsProps) {
                 </a>
               );
             })}
-          </div>
+          </>
         );
       }
     }
 
-    return <div className={classes(className, statusClass)}>No playlists found</div>;
+    return <div className={statusClass}>No playlists found</div>;
   }
 
-  return getElement();
+  return <div className={className}>{getElement()}</div>;
 }
 
 export default Playlists;

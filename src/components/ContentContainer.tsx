@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { Err, Ok, Result } from 'ts-results';
-import { classes } from 'typestyle';
 
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import { getPlaylistItemsAsync, Track } from '../utils/spotifyWebApi/playlists';
@@ -54,21 +53,19 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
 
   function getElement(): JSX.Element {
     if (isLoading) {
-      return <div className={classes(className, statusClass)}>Getting playlist tracks...</div>;
+      return <div className={statusClass}>Getting playlist tracks...</div>;
     }
 
     if (error || playlistTracksResult?.err) {
       return (
-        <div className={classes(className, statusClass)}>
-          An error occurred loading the track from the playlist. Please try again.
-        </div>
+        <div className={statusClass}>An error occurred loading the track from the playlist. Please try again.</div>
       );
     }
 
     if (playlistTracksResult?.ok) {
       if (playlistTracksResult.val) {
         return (
-          <div className={className}>
+          <>
             {playlistTracksResult.val.map((track) => {
               return (
                 <div key={track.id}>
@@ -76,15 +73,15 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
                 </div>
               );
             })}
-          </div>
+          </>
         );
       }
     }
 
-    return <div className={classes(className, statusClass)}>No playlists found</div>;
+    return <div className={statusClass}>No tracks found</div>;
   }
 
-  return getElement();
+  return <div className={className}>{getElement()}</div>;
 }
 
 export default ContentContainer;

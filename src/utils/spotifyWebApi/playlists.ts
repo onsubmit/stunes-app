@@ -16,6 +16,7 @@ export async function getPlaylistItemsAsync(
   playlistId: string
 ): Promise<Result<Track[], void>> {
   return executeAsync(accessToken, refreshToken, async (spotifyApi) => {
+    debugger;
     const playlistTracks = await spotifyApi.getPlaylistTracks(playlistId);
 
     const tracks: Track[] = playlistTracks.items.map((track) => {
