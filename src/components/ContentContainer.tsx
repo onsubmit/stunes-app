@@ -70,6 +70,18 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
               return (
                 <div key={track.id}>
                   <div>{track.song}</div>
+                  <div>
+                    {track.artists?.map((a, i) => {
+                      return (
+                        <span key={`artist${i}`}>
+                          <a href={a.href} target="_blank" rel="noreferrer">
+                            {a.name}
+                          </a>
+                          {i < track.artists.length - 1 ? <span>, </span> : undefined}
+                        </span>
+                      );
+                    })}
+                  </div>
                 </div>
               );
             })}
