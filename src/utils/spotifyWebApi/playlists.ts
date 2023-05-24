@@ -15,19 +15,49 @@ export async function getPlaylistItemsAsync(
   playlistId: string
 ): Promise<Result<Track[], void>> {
   return executeAsync(accessToken, refreshToken, async (spotifyApi) => {
-    const playlistTracks = await spotifyApi.getPlaylistTracks(playlistId);
+    const tracks: Track[] = [];
 
-    const tracks: Track[] = playlistTracks.items.map((item) => {
-      const track = item.track as SpotifyApi.TrackObjectFull;
-      return {
-        id: track.id,
-        song: track.name,
-        album: { name: track.album.name, href: track.album.href },
-        artists: track.artists.map((a) => {
-          return { name: a.name, href: a.external_urls.spotify };
-        }),
-      };
-    });
+    let offset = 0;
+    let limit = 100;
+    let moreTracksRemain = true;
+
+    while (moreTracksRemain) {
+      const playlistTracks = await spotifyApi.getPlaylistTracks(playlistId, {
+        offset,
+        limit,
+        fields: 'total,limit,next,items(track(id,name,album(name,href),artists(name,external_urls(spotify))))',
+      });
+
+      tracks.push(
+        ...playlistTracks.items.map((item) => {
+          const track = item.track as SpotifyApi.TrackObjectFull;
+          return {
+            id: track.id,
+            song: track.name,
+            album: { name: track.album.name, href: track.album.href },
+            artists: track.artists.map((a) => {
+              return { name: a.name, href: a.external_urls.spotify };
+            }),
+          };
+        })
+      );
+
+      if (!playlistTracks.next) {
+        moreTracksRemain = false;
+        break;
+      }
+
+      const nextUrl = new URL(playlistTracks.next);
+      const offsetStr = nextUrl.searchParams.get('offset');
+      const limitStr = nextUrl.searchParams.get('limit');
+      if (!offsetStr || !limitStr) {
+        moreTracksRemain = false;
+        break;
+      }
+
+      offset = parseInt(offsetStr, 10);
+      limit = parseInt(limitStr, 10);
+    }
 
     return new Ok(tracks);
   });
