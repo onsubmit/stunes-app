@@ -3,11 +3,10 @@ import { Ok, Result } from 'ts-results';
 import { executeAsync } from './spotifyWebApi';
 
 export type Track = {
+  album: { name: string; href: string };
   artists: { name: string; href: string }[];
   id: string;
   song: string;
-  //songUrl: string;
-  //albumUrl: string;
 };
 
 export async function getPlaylistItemsAsync(
@@ -23,6 +22,7 @@ export async function getPlaylistItemsAsync(
       return {
         id: track.id,
         song: track.name,
+        album: { name: track.album.name, href: track.album.href },
         artists: track.artists.map((a) => {
           return { name: a.name, href: a.external_urls.spotify };
         }),

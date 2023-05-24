@@ -4,6 +4,8 @@ import { Err, Ok, Result } from 'ts-results';
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import { getPlaylistItemsAsync, Track } from '../utils/spotifyWebApi/playlists';
 import { className, statusClass } from './ContentContainer.css';
+import SortableList from './SortableList';
+import TrackList from './TrackList';
 
 type ContentContainerProps = {
   selectedPlaylists: string[];
@@ -64,27 +66,22 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
 
     if (playlistTracksResult?.ok) {
       if (playlistTracksResult.val) {
+        const artists: Map<string, string> = new Map();
+        const albums: Map<string, string> = new Map();
+        for (const track of playlistTracksResult.val) {
+          track.artists.forEach((artist) => {
+            artists.set(artist.href, artist.name);
+          });
+
+          albums.set(track.album.href, track.album.name);
+        }
+
         return (
           <>
-            {playlistTracksResult.val.map((track) => {
-              return (
-                <div key={track.id}>
-                  <div>{track.song}</div>
-                  <div>
-                    {track.artists?.map((a, i) => {
-                      return (
-                        <span key={`artist${i}`}>
-                          <a href={a.href} target="_blank" rel="noreferrer">
-                            {a.name}
-                          </a>
-                          {i < track.artists.length - 1 ? <span>, </span> : undefined}
-                        </span>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
+            <SortableList title="Genre" items={new Map()} />
+            <SortableList title="Artist" items={artists} />
+            <SortableList title="Album" items={albums} />
+            <TrackList tracks={playlistTracksResult.val} />
           </>
         );
       }
