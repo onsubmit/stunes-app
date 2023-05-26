@@ -7,6 +7,8 @@ export type Track = {
   artists: { name: string; href: string }[];
   id: string;
   song: string;
+  addedAt: Date;
+  durationInMilliseconds: number;
 };
 
 export async function getPlaylistItemsAsync(
@@ -25,7 +27,8 @@ export async function getPlaylistItemsAsync(
       const playlistTracks = await spotifyApi.getPlaylistTracks(playlistId, {
         offset,
         limit,
-        fields: 'total,limit,next,items(track(id,name,album(name,href),artists(name,external_urls(spotify))))',
+        fields:
+          'total,limit,next,items(added_at,track(id,name,duration_ms,album(name,href),artists(name,external_urls(spotify))))',
       });
 
       tracks.push(
@@ -34,6 +37,8 @@ export async function getPlaylistItemsAsync(
           return {
             id: track.id,
             song: track.name,
+            addedAt: new Date(Date.parse(item.added_at)),
+            durationInMilliseconds: track.duration_ms,
             album: { name: track.album.name, href: track.album.href },
             artists: track.artists.map((a) => {
               return { name: a.name, href: a.external_urls.spotify };

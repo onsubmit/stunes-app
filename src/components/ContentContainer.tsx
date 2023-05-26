@@ -68,7 +68,11 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
       if (playlistTracksResult.val) {
         const artists: Map<string, string> = new Map();
         const albums: Map<string, string> = new Map();
+        const tracks: Map<string, Track> = new Map();
+
         for (const track of playlistTracksResult.val) {
+          tracks.set(track.id, track);
+
           track.artists.forEach((artist) => {
             artists.set(artist.href, artist.name);
           });
@@ -81,7 +85,7 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
             <SortableList title="Genre" items={new Map()} />
             <SortableList title="Artist" items={artists} />
             <SortableList title="Album" items={albums} />
-            <TrackList tracks={playlistTracksResult.val} />
+            <TrackList tracks={tracks} />
           </>
         );
       }
