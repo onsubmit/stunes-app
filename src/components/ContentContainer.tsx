@@ -3,7 +3,7 @@ import { Err, Ok, Result } from 'ts-results';
 
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import { getPlaylistItemsAsync, Track } from '../utils/spotifyWebApi/playlists';
-import { className, statusClass } from './ContentContainer.css';
+import { className, filtersClass, statusClass } from './ContentContainer.css';
 import SortableList from './SortableList';
 import TrackList from './TrackList';
 
@@ -82,9 +82,12 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
 
         return (
           <>
-            <SortableList title="Genre" items={new Map()} />
-            <SortableList title="Artist" items={artists} />
-            <SortableList title="Album" items={albums} />
+            <div className={filtersClass}>
+              <SortableList title="Genre" items={new Map()} />
+              <SortableList title="Artist" items={artists} />
+              <SortableList title="Album" items={albums} />
+            </div>
+
             <TrackList tracks={tracks} />
           </>
         );

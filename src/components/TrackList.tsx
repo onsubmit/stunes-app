@@ -1,6 +1,6 @@
 import { millisecondsToTimeString } from '../utils/millisecondsToTimeString';
 import { Track } from '../utils/spotifyWebApi/playlists';
-import { className } from './TrackList.css';
+import { albumColumnClass, className, tableClass, titleColumnClass } from './TrackList.css';
 
 export type TrackListProps = {
   tracks: Map<string, Track>;
@@ -9,11 +9,11 @@ export type TrackListProps = {
 function TrackList({ tracks }: TrackListProps) {
   return (
     <div className={className}>
-      <table>
+      <table className={tableClass}>
         <tr>
           <th>#</th>
-          <th>Title</th>
-          <th>Album</th>
+          <th className={titleColumnClass}>Title</th>
+          <th className={albumColumnClass}>Album</th>
           <th>Date Added</th>
           <th>Duration</th>
         </tr>

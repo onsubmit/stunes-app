@@ -1,4 +1,4 @@
-import { className } from './SortableList.css';
+import { className, listClass } from './SortableList.css';
 
 export type SortableListProps = {
   title: string;
@@ -24,7 +24,7 @@ function SortableList({ title, items }: SortableListProps) {
     <div className={className}>
       <div>{title}</div>
       <div>
-        <ul>
+        <ul className={listClass}>
           {sortedItems.map((item) => (
             <li key={item.key}>{item.value}</li>
           ))}
