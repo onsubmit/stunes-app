@@ -4,6 +4,7 @@ import { Err, Ok, Result } from 'ts-results';
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import { getPlaylistItemsAsync, Track } from '../utils/spotifyWebApi/playlists';
 import { className, filtersClass, statusClass } from './ContentContainer.css';
+import SortableGenresList from './SortableGenresList';
 import SortableList from './SortableList';
 import TrackList from './TrackList';
 
@@ -74,16 +75,16 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
           tracks.set(track.id, track);
 
           track.artists.forEach((artist) => {
-            artists.set(artist.href, artist.name);
+            artists.set(artist.id, artist.name);
           });
 
-          albums.set(track.album.href, track.album.name);
+          albums.set(track.album.id, track.album.name);
         }
 
         return (
           <>
             <div className={filtersClass}>
-              <SortableList title="Genre" items={new Map()} />
+              <SortableGenresList artistIds={new Set(artists.keys())} />
               <SortableList title="Artist" items={artists} />
               <SortableList title="Album" items={albums} />
             </div>

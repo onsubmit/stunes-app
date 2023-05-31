@@ -3,8 +3,8 @@ import { Ok, Result } from 'ts-results';
 import { executeAsync } from './spotifyWebApi';
 
 export type Track = {
-  album: { name: string; href: string };
-  artists: { name: string; href: string }[];
+  album: { id: string; name: string; href: string };
+  artists: { id: string; name: string; href: string }[];
   id: string;
   song: string;
   addedAt: Date;
@@ -28,20 +28,21 @@ export async function getPlaylistItemsAsync(
         offset,
         limit,
         fields:
-          'total,limit,next,items(added_at,track(id,name,duration_ms,album(name,href),artists(name,external_urls(spotify))))',
+          'total,limit,next,items(added_at,track(id,name,duration_ms,album(id,name,href),artists(id,name,external_urls(spotify))))',
       });
 
       tracks.push(
         ...playlistTracks.items.map((item) => {
           const track = item.track as SpotifyApi.TrackObjectFull;
+          const album = track.album;
           return {
             id: track.id,
             song: track.name,
             addedAt: new Date(Date.parse(item.added_at)),
             durationInMilliseconds: track.duration_ms,
-            album: { name: track.album.name, href: track.album.href },
+            album: { id: album.id, name: album.name, href: album.href },
             artists: track.artists.map((a) => {
-              return { name: a.name, href: a.external_urls.spotify };
+              return { name: a.name, id: a.id, href: a.external_urls.spotify };
             }),
           };
         })
