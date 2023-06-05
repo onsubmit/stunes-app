@@ -16,7 +16,6 @@ export async function getArtistsAsync(
   const limit = 50;
 
   return executeAsync(accessToken, refreshToken, async (spotifyApi) => {
-    debugger;
     const getArtistsPromises: ReturnType<typeof spotifyApi.getArtists>[] = [];
     const chunkedArtistIds = chunkArray(artistIds, limit);
     for (const artistIdsChunk of chunkedArtistIds) {
