@@ -42,7 +42,7 @@ export async function getPlaylistItemsAsync(
             song: track.name,
             addedAt: new Date(Date.parse(item.added_at)),
             durationInMilliseconds: track.duration_ms,
-            album: { id: album.id, name: album.name, href: album.href, albumArtUrl: albumImage.url },
+            album: { id: album.id, name: album.name, href: album.href, albumArtUrl: albumImage?.url || '' },
             artists: track.artists.map((a) => {
               return { name: a.name, id: a.id, href: a.external_urls.spotify };
             }),
