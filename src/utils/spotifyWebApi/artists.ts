@@ -1,5 +1,6 @@
 import { Ok, Result } from 'ts-results';
 
+import { chunkArray } from '../chunkArray';
 import { executeAsync } from './spotifyWebApi';
 
 export type Artist = {
@@ -12,13 +13,26 @@ export async function getArtistsAsync(
   refreshToken: string,
   artistIds: string[]
 ): Promise<Result<Artist[], void>> {
+  const limit = 50;
+
   return executeAsync(accessToken, refreshToken, async (spotifyApi) => {
-    // TODO: Chunk into 50 at a time.
-    const response = await spotifyApi.getArtists(artistIds);
-    return new Ok(
-      response.artists.map((a) => {
-        return { id: a.id, genres: a.genres };
-      })
-    );
+    debugger;
+    const getArtistsPromises: ReturnType<typeof spotifyApi.getArtists>[] = [];
+    const chunkedArtistIds = chunkArray(artistIds, limit);
+    for (const artistIdsChunk of chunkedArtistIds) {
+      getArtistsPromises.push(spotifyApi.getArtists(artistIdsChunk));
+    }
+
+    const responses = await Promise.all(getArtistsPromises);
+    const artists: Artist[] = [];
+    for (const response of responses) {
+      artists.push(
+        ...response.artists.map((a) => {
+          return { id: a.id, genres: a.genres };
+        })
+      );
+    }
+
+    return new Ok(artists);
   });
 }
