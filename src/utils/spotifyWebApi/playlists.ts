@@ -28,7 +28,7 @@ export async function getPlaylistItemsAsync(
         offset,
         limit,
         fields:
-          'total,limit,next,items(added_at,track(id,name,duration_ms,album(id,name,href),artists(id,name,external_urls(spotify))))',
+          'total,limit,next,items(added_at,track(id,name,duration_ms,album(id,name,href,images),artists(id,name,external_urls(spotify))))',
       });
 
       tracks.push(

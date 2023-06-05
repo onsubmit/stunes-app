@@ -22,14 +22,19 @@ export async function getCurrentlyPlayingTrackAsync(
       return Err.EMPTY;
     }
 
+    const item = track.item;
+    const album = item.album;
+    const albumImages = album.images;
+    const image = albumImages.find((image) => image.height === 64) || albumImages[0];
+
     return new Ok({
-      artists: track.item.artists.map((a) => {
+      artists: item.artists.map((a) => {
         return { name: a.name, href: a.external_urls.spotify };
       }),
-      song: track.item.name,
-      songUrl: track.item.external_urls.spotify,
-      albumUrl: track.item.album.external_urls.spotify,
-      albumArtUrl: track.item.album.images.at(0)?.url || '',
+      song: item.name,
+      songUrl: item.external_urls.spotify,
+      albumUrl: album.external_urls.spotify,
+      albumArtUrl: image?.url || '',
     });
   });
 }
