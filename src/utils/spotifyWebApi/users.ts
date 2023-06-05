@@ -47,10 +47,12 @@ export async function getUserPlaylistsAsync(
     const userPlaylists = await spotifyApi.getUserPlaylists(userId);
 
     const playlists: Playlist[] = userPlaylists.items.map((playlist) => {
+      const playlistPhotoUrl = playlist.images.find((image) => image.height === 60) || playlist.images[0];
+
       return {
         id: playlist.id,
         name: playlist.name,
-        playlistPhotoUrl: playlist.images?.at(0)?.url || '',
+        playlistPhotoUrl: playlistPhotoUrl?.url || '',
       };
     });
 
