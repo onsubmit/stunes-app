@@ -3,7 +3,7 @@ import { Ok, Result } from 'ts-results';
 import { executeAsync } from './spotifyWebApi';
 
 export type Track = {
-  album: { id: string; name: string; href: string };
+  album: { id: string; name: string; href: string; albumArtUrl: string };
   artists: { id: string; name: string; href: string }[];
   id: string;
   song: string;
@@ -35,12 +35,14 @@ export async function getPlaylistItemsAsync(
         ...playlistTracks.items.map((item) => {
           const track = item.track as SpotifyApi.TrackObjectFull;
           const album = track.album;
+          const albumImages = album.images;
+          const albumImage = albumImages.find((image) => image.height === 64) || albumImages[0];
           return {
             id: track.id,
             song: track.name,
             addedAt: new Date(Date.parse(item.added_at)),
             durationInMilliseconds: track.duration_ms,
-            album: { id: album.id, name: album.name, href: album.href },
+            album: { id: album.id, name: album.name, href: album.href, albumArtUrl: albumImage.url },
             artists: track.artists.map((a) => {
               return { name: a.name, id: a.id, href: a.external_urls.spotify };
             }),

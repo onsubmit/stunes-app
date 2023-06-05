@@ -44,3 +44,14 @@ export const titleColumnClass = style({
 export const albumColumnClass = style({
   width: '50%',
 });
+
+export const titleClass = style({
+  display: 'flex',
+  flexDirection: 'row',
+  gap: '16px',
+});
+
+export const albumArtPhoto = style({
+  width: '36px',
+  height: '36px',
+});
