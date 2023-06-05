@@ -1,4 +1,4 @@
-import { className, filterClass, listClass, scrollableClass } from './SortableList.css';
+import { className, filterClass, multiSelectClass } from './SortableList.css';
 
 export type SortableListProps = {
   title: string;
@@ -25,17 +25,19 @@ function SortableList({ title, items }: SortableListProps) {
       <div>
         <input className={filterClass} type="text" placeholder={title}></input>
       </div>
-      <div className={scrollableClass}>
-        <ul className={listClass}>
+      <div>
+        <select multiple name="list-box" className={multiSelectClass}>
           {sortedItems.length && (
-            <li>
+            <option value="All">
               All ({sortedItems.length} {(sortedItems.length === 1 ? title : `${title}s`).toLocaleLowerCase()})
-            </li>
+            </option>
           )}
           {sortedItems.map((item) => (
-            <li key={item.key}>{item.value}</li>
+            <option key={item.key} value={item.key}>
+              {item.value}
+            </option>
           ))}
-        </ul>
+        </select>
       </div>
     </div>
   );
