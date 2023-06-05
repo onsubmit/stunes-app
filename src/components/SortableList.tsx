@@ -1,4 +1,4 @@
-import { className, listClass } from './SortableList.css';
+import { className, filterClass, listClass, scrollableClass } from './SortableList.css';
 
 export type SortableListProps = {
   title: string;
@@ -22,9 +22,16 @@ function SortableList({ title, items }: SortableListProps) {
 
   return (
     <div className={className}>
-      <div>{title}</div>
       <div>
+        <input className={filterClass} type="text" placeholder={title}></input>
+      </div>
+      <div className={scrollableClass}>
         <ul className={listClass}>
+          {sortedItems.length && (
+            <li>
+              All ({sortedItems.length} {(sortedItems.length === 1 ? title : `${title}s`).toLocaleLowerCase()})
+            </li>
+          )}
           {sortedItems.map((item) => (
             <li key={item.key}>{item.value}</li>
           ))}
