@@ -80,7 +80,7 @@ function SortableGenresList({ artistIds }: SortableGenresListProps) {
     return <div className={statusClass}>No genres found</div>;
   }
 
-  return <div>{getElement()}</div>;
+  return getElement();
 }
 
 export default SortableGenresList;
