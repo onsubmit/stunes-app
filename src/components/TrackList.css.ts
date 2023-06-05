@@ -18,7 +18,7 @@ export const tableClass = style({
   borderCollapse: 'collapse',
   margin: '12px',
   $nest: {
-    'tr:first-of-type': {
+    'thead tr': {
       borderBottom: '1px solid rgba(255, 255, 255, 0.25)',
     },
     th: {
