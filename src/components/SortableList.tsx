@@ -54,11 +54,7 @@ function SortableList({ title, pluralTitle, onSelectedItemsChange, items }: Sort
         <select
           multiple
           name="list-box"
-          onChange={(event) =>
-            onSelectedItemsChange?.(
-              [...event.target.options].filter((option) => option.selected).map((option) => option.value)
-            )
-          }
+          onChange={(event) => onSelectedItemsChange?.([...event.target.selectedOptions].map((option) => option.value))}
           className={multiSelectClass}
         >
           {filteredTotal ? (
