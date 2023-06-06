@@ -6,6 +6,7 @@ export type CurrentTrack = {
   artists: { name: string; href: string }[];
   song: string;
   songUrl: string;
+  isCurrentlyPlaying: boolean;
   albumUrl: string;
   albumArtUrl: string;
 };
@@ -33,6 +34,7 @@ export async function getCurrentlyPlayingTrackAsync(
       }),
       song: item.name,
       songUrl: item.external_urls.spotify,
+      isCurrentlyPlaying: track.is_playing,
       albumUrl: album.external_urls.spotify,
       albumArtUrl: image?.url || '',
     });

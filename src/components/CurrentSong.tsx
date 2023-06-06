@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { Err, Ok, Result } from 'ts-results';
 import { classes } from 'typestyle';
 
@@ -8,6 +9,8 @@ import { albumArtPhoto, className, songNameClass, statusClass } from './CurrentS
 
 function CurrentSong() {
   const queryKey = 'getCurrentSong';
+  const [isPlaying, setIsPlaying] = useState(false);
+
   const {
     isLoading,
     error,
@@ -18,11 +21,16 @@ function CurrentSong() {
     refetchOnReconnect: false,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
+    refetchInterval: isPlaying ? 5000 : 60000,
 
     queryFn: async () => {
       const propsResult = await getCurrentSongAsync();
       if (!propsResult.ok) {
         return Ok.EMPTY;
+      }
+
+      if (propsResult.val) {
+        setIsPlaying(propsResult.val.isCurrentlyPlaying);
       }
 
       return new Ok(propsResult.val);
