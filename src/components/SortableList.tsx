@@ -6,9 +6,10 @@ export type SortableListProps = {
   title: string;
   pluralTitle: string;
   items: Map<string, string>;
+  onSelectedItemsChange?: (selectedItems: string[]) => void;
 };
 
-function SortableList({ title, pluralTitle, items }: SortableListProps) {
+function SortableList({ title, pluralTitle, onSelectedItemsChange, items }: SortableListProps) {
   const [filter, setFilter] = useState('');
 
   let sortedItems = [...items]
@@ -50,7 +51,16 @@ function SortableList({ title, pluralTitle, items }: SortableListProps) {
         ></input>
       </div>
       <div>
-        <select multiple name="list-box" className={multiSelectClass}>
+        <select
+          multiple
+          name="list-box"
+          onChange={(event) =>
+            onSelectedItemsChange?.(
+              [...event.target.options].filter((option) => option.selected).map((option) => option.value)
+            )
+          }
+          className={multiSelectClass}
+        >
           {filteredTotal ? (
             <option value="_stunes_all">All ({parentheticalItems.join(', ')})</option>
           ) : (

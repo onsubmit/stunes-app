@@ -8,9 +8,10 @@ import SortableList from './SortableList';
 
 export type SortableGenresListProps = {
   artistIds: Set<string>;
+  onSelectedGenresChange?: (selectedItems: string[]) => void;
 };
 
-function SortableGenresList({ artistIds }: SortableGenresListProps) {
+function SortableGenresList({ artistIds, onSelectedGenresChange }: SortableGenresListProps) {
   const queryKey = 'getArtistGenres';
 
   const {
@@ -73,7 +74,14 @@ function SortableGenresList({ artistIds }: SortableGenresListProps) {
           }
         }
 
-        return <SortableList title="Genre" pluralTitle="Genres" items={genres} />;
+        return (
+          <SortableList
+            title="Genre"
+            pluralTitle="Genres"
+            items={genres}
+            onSelectedItemsChange={onSelectedGenresChange}
+          />
+        );
       }
     }
 

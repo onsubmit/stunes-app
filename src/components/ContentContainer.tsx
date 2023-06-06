@@ -84,9 +84,19 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
         return (
           <>
             <div className={filtersClass}>
-              <SortableGenresList artistIds={new Set(artists.keys())} />
-              <SortableList title="Artist" pluralTitle="Artists" items={artists} />
-              <SortableList title="Album" pluralTitle="Albums" items={albums} />
+              <SortableGenresList artistIds={new Set(artists.keys())} onSelectedGenresChange={onSelectedGenresChange} />
+              <SortableList
+                title="Artist"
+                pluralTitle="Artists"
+                items={artists}
+                onSelectedItemsChange={onSelectedArtistsChange}
+              />
+              <SortableList
+                title="Album"
+                pluralTitle="Albums"
+                items={albums}
+                onSelectedItemsChange={onSelectedAlbumsChange}
+              />
             </div>
 
             <TrackList tracks={tracks} />
@@ -99,6 +109,18 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
   }
 
   return <div className={className}>{getElement()}</div>;
+
+  function onSelectedGenresChange(selectedGenres: string[]) {
+    console.log(selectedGenres);
+  }
+
+  function onSelectedArtistsChange(selectedArtists: string[]) {
+    console.log(selectedArtists);
+  }
+
+  function onSelectedAlbumsChange(selectedAlbums: string[]) {
+    console.log(selectedAlbums);
+  }
 }
 
 export default ContentContainer;
