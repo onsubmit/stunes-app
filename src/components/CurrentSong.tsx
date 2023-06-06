@@ -26,12 +26,11 @@ function CurrentSong() {
     queryFn: async () => {
       const propsResult = await getCurrentSongAsync();
       if (!propsResult.ok) {
+        setIsPlaying(false);
         return Ok.EMPTY;
       }
 
-      if (propsResult.val) {
-        setIsPlaying(propsResult.val.isCurrentlyPlaying);
-      }
+      setIsPlaying(!!propsResult.val?.isCurrentlyPlaying);
 
       return new Ok(propsResult.val);
     },
