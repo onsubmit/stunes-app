@@ -73,7 +73,7 @@ function SortableGenresList({ artistIds }: SortableGenresListProps) {
           }
         }
 
-        return <SortableList title="Genre" items={genres} />;
+        return <SortableList title="Genre" pluralTitle="Genres" items={genres} />;
       }
     }
 

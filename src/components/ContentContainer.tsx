@@ -85,8 +85,8 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
           <>
             <div className={filtersClass}>
               <SortableGenresList artistIds={new Set(artists.keys())} />
-              <SortableList title="Artist" items={artists} />
-              <SortableList title="Album" items={albums} />
+              <SortableList title="Artist" pluralTitle="Artists" items={artists} />
+              <SortableList title="Album" pluralTitle="Albums" items={albums} />
             </div>
 
             <TrackList tracks={tracks} />
