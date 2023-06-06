@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Err, Ok, Result } from 'ts-results';
 
+import { ArtistGenreMap } from '../utils/artistGenreMap';
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import { getPlaylistItemsAsync, Track } from '../utils/spotifyWebApi/playlists';
 import { className, filtersClass, statusClass } from './ContentContainer.css';
@@ -20,6 +21,8 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
     artists: [],
     albums: [],
   });
+
+  const artistGenreMap = new ArtistGenreMap();
 
   const {
     isLoading,
@@ -90,7 +93,11 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
         return (
           <>
             <div className={filtersClass}>
-              <SortableGenresList artistIds={new Set(artists.keys())} onSelectedGenresChange={onSelectedGenresChange} />
+              <SortableGenresList
+                artistIds={new Set(artists.keys())}
+                onSelectedGenresChange={onSelectedGenresChange}
+                onUpdateArtistGenreMap={onUpdateArtistGenreMap}
+              />
               <SortableList
                 title="Artist"
                 pluralTitle="Artists"
@@ -135,6 +142,10 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
       ...trackListFilter,
       albums: selectedAlbums,
     });
+  }
+
+  function onUpdateArtistGenreMap(artistId: string, genres: string[]) {
+    artistGenreMap.add(artistId, genres);
   }
 }
 

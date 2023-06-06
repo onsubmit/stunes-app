@@ -8,10 +8,11 @@ import SortableList from './SortableList';
 
 export type SortableGenresListProps = {
   artistIds: Set<string>;
-  onSelectedGenresChange?: (selectedItems: string[]) => void;
+  onUpdateArtistGenreMap: (artistId: string, genres: string[]) => void;
+  onSelectedGenresChange: (selectedItems: string[]) => void;
 };
 
-function SortableGenresList({ artistIds, onSelectedGenresChange }: SortableGenresListProps) {
+function SortableGenresList({ artistIds, onUpdateArtistGenreMap, onSelectedGenresChange }: SortableGenresListProps) {
   const queryKey = 'getArtistGenres';
 
   const {
@@ -69,6 +70,8 @@ function SortableGenresList({ artistIds, onSelectedGenresChange }: SortableGenre
         const genres: Map<string, string> = new Map();
 
         for (const artist of artistsResult.val) {
+          onUpdateArtistGenreMap(artist.id, artist.genres);
+
           for (const genre of artist.genres) {
             genres.set(genre, genre);
           }
