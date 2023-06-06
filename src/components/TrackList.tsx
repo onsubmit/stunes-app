@@ -2,11 +2,19 @@ import { millisecondsToTimeString } from '../utils/millisecondsToTimeString';
 import { Track } from '../utils/spotifyWebApi/playlists';
 import { albumArtPhoto, albumColumnClass, className, tableClass, titleClass, titleColumnClass } from './TrackList.css';
 
-export type TrackListProps = {
-  tracks: Map<string, Track>;
+export type TrackListFilter = {
+  genres: string[];
+  artists: string[];
+  albums: string[];
 };
 
-function TrackList({ tracks }: TrackListProps) {
+export type TrackListProps = {
+  tracks: Map<string, Track>;
+  filter: TrackListFilter;
+};
+
+function TrackList({ tracks, filter }: TrackListProps) {
+  console.log(filter);
   return (
     <div className={className}>
       <table className={tableClass}>

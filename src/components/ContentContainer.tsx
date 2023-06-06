@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { Err, Ok, Result } from 'ts-results';
 
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
@@ -6,7 +7,7 @@ import { getPlaylistItemsAsync, Track } from '../utils/spotifyWebApi/playlists';
 import { className, filtersClass, statusClass } from './ContentContainer.css';
 import SortableGenresList from './SortableGenresList';
 import SortableList from './SortableList';
-import TrackList from './TrackList';
+import TrackList, { TrackListFilter } from './TrackList';
 
 type ContentContainerProps = {
   selectedPlaylists: string[];
@@ -14,6 +15,11 @@ type ContentContainerProps = {
 
 function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
   const queryKey = 'getPlaylistTracks';
+  const [trackListFilter, setTrackListFilter] = useState<TrackListFilter>({
+    genres: [],
+    artists: [],
+    albums: [],
+  });
 
   const {
     isLoading,
@@ -99,7 +105,7 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
               />
             </div>
 
-            <TrackList tracks={tracks} />
+            <TrackList tracks={tracks} filter={trackListFilter} />
           </>
         );
       }
@@ -111,15 +117,24 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
   return <div className={className}>{getElement()}</div>;
 
   function onSelectedGenresChange(selectedGenres: string[]) {
-    console.log(selectedGenres);
+    setTrackListFilter({
+      ...trackListFilter,
+      genres: selectedGenres,
+    });
   }
 
   function onSelectedArtistsChange(selectedArtists: string[]) {
-    console.log(selectedArtists);
+    setTrackListFilter({
+      ...trackListFilter,
+      artists: selectedArtists,
+    });
   }
 
   function onSelectedAlbumsChange(selectedAlbums: string[]) {
-    console.log(selectedAlbums);
+    setTrackListFilter({
+      ...trackListFilter,
+      albums: selectedAlbums,
+    });
   }
 }
 
