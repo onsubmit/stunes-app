@@ -18,6 +18,7 @@ export type TrackListProps = {
 
 function TrackList({ tracks, filter, artistGenreMap }: TrackListProps) {
   console.log(artistGenreMap);
+  console.log(filter);
 
   let trackIndex = 1;
   return (
@@ -37,7 +38,8 @@ function TrackList({ tracks, filter, artistGenreMap }: TrackListProps) {
             ? undefined
             : [...tracks].map(([id, track]) => {
                 const hideRow =
-                  filter.artists.length && !track.artists.some((artist) => filter.artists.includes(artist.id));
+                  (filter.artists.length && !track.artists.some((artist) => filter.artists.includes(artist.id))) ||
+                  (filter.albums.length && !filter.albums.some((album) => album === track.album.id));
                 return hideRow ? undefined : (
                   <tr key={id}>
                     <td>{trackIndex++}</td>
