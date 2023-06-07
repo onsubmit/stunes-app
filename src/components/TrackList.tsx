@@ -1,8 +1,10 @@
+import { ArtistGenreMap } from '../utils/artistGenreMap';
 import { millisecondsToTimeString } from '../utils/millisecondsToTimeString';
 import { Track } from '../utils/spotifyWebApi/playlists';
 import { albumArtPhoto, albumColumnClass, className, tableClass, titleClass, titleColumnClass } from './TrackList.css';
 
 export type TrackListFilter = {
+  hideAll: boolean;
   genres: string[];
   artists: string[];
   albums: string[];
@@ -11,10 +13,13 @@ export type TrackListFilter = {
 export type TrackListProps = {
   tracks: Map<string, Track>;
   filter: TrackListFilter;
+  artistGenreMap: ArtistGenreMap;
 };
 
-function TrackList({ tracks, filter }: TrackListProps) {
-  console.log(filter);
+function TrackList({ tracks, filter, artistGenreMap }: TrackListProps) {
+  console.log(artistGenreMap);
+
+  let trackIndex = 1;
   return (
     <div className={className}>
       <table className={tableClass}>
@@ -28,36 +33,44 @@ function TrackList({ tracks, filter }: TrackListProps) {
           </tr>
         </thead>
         <tbody>
-          {[...tracks].map(([id, track], index) => (
-            <tr key={id}>
-              <td>{index + 1}</td>
-              <td>
-                <div className={titleClass}>
-                  <div>
-                    {track.album.albumArtUrl && <img className={albumArtPhoto} src={track.album.albumArtUrl}></img>}
-                  </div>
-                  <div>
-                    <div>{track.song}</div>
-                    <div>
-                      {track.artists?.map((a, i) => {
-                        return (
-                          <span key={`artist${i}`}>
-                            <a href={a.href} target="_blank" rel="noreferrer">
-                              {a.name}
-                            </a>
-                            {i < track.artists.length - 1 ? <span>, </span> : undefined}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td>{track.album.name}</td>
-              <td>{track.addedAt.toLocaleDateString()}</td>
-              <td>{millisecondsToTimeString(track.durationInMilliseconds)}</td>
-            </tr>
-          ))}
+          {filter.hideAll
+            ? undefined
+            : [...tracks].map(([id, track]) => {
+                const hideRow =
+                  filter.artists.length && !track.artists.some((artist) => filter.artists.includes(artist.id));
+                return hideRow ? undefined : (
+                  <tr key={id}>
+                    <td>{trackIndex++}</td>
+                    <td>
+                      <div className={titleClass}>
+                        <div>
+                          {track.album.albumArtUrl && (
+                            <img className={albumArtPhoto} src={track.album.albumArtUrl}></img>
+                          )}
+                        </div>
+                        <div>
+                          <div>{track.song}</div>
+                          <div>
+                            {track.artists?.map((a, i) => {
+                              return (
+                                <span key={`artist${i}`}>
+                                  <a href={a.href} target="_blank" rel="noreferrer">
+                                    {a.name}
+                                  </a>
+                                  {i < track.artists.length - 1 ? <span>, </span> : undefined}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{track.album.name}</td>
+                    <td>{track.addedAt.toLocaleDateString()}</td>
+                    <td>{millisecondsToTimeString(track.durationInMilliseconds)}</td>
+                  </tr>
+                );
+              })}
         </tbody>
       </table>
     </div>

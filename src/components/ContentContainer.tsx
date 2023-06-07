@@ -17,6 +17,7 @@ type ContentContainerProps = {
 function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
   const queryKey = 'getPlaylistTracks';
   const [trackListFilter, setTrackListFilter] = useState<TrackListFilter>({
+    hideAll: false,
     genres: [],
     artists: [],
     albums: [],
@@ -112,7 +113,7 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
               />
             </div>
 
-            <TrackList tracks={tracks} filter={trackListFilter} />
+            <TrackList tracks={tracks} filter={trackListFilter} artistGenreMap={artistGenreMap} />
           </>
         );
       }

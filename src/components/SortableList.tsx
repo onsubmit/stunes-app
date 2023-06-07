@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { className, filterClass, multiSelectClass } from './SortableList.css';
 
@@ -9,28 +9,32 @@ export type SortableListProps = {
   onSelectedItemsChange?: (selectedItems: string[]) => void;
 };
 
-function SortableList({ title, pluralTitle, onSelectedItemsChange, items }: SortableListProps) {
-  const [filter, setFilter] = useState('');
+export const optionValueNoResults = '_stunes_no_results';
 
-  let sortedItems = [...items]
+function SortableList({ title, pluralTitle, onSelectedItemsChange, items }: SortableListProps) {
+  const optionValueAll = '_stunes_all';
+
+  const [userFilter, setUserFilter] = useState('');
+  const selectRef = useRef<HTMLSelectElement>(null);
+
+  const initialSortedItems = [...items]
     .map(([key, value]) => ({ key, value }))
     .sort((a, b) => {
-      if (a.value < b.value) {
+      const lowerA = a.value.toLocaleLowerCase();
+      const lowerB = b.value.toLocaleLowerCase();
+      if (lowerA < lowerB) {
         return -1;
       }
 
-      if (a.value > b.value) {
+      if (lowerA > lowerB) {
         return 1;
       }
 
       return 0;
     });
 
-  const originalTotal = sortedItems.length;
-  if (filter) {
-    const filterLowerCase = filter.toLocaleLowerCase();
-    sortedItems = sortedItems.filter((item) => item.value.toLocaleLowerCase().includes(filterLowerCase));
-  }
+  const originalTotal = initialSortedItems.length;
+  const sortedItems = userFilter ? getSortedItemsForFilter(userFilter, initialSortedItems) : initialSortedItems;
 
   const filteredTotal = sortedItems.length;
   const pluralizedTitle = filteredTotal === 1 ? title : pluralTitle;
@@ -46,21 +50,18 @@ function SortableList({ title, pluralTitle, onSelectedItemsChange, items }: Sort
           className={filterClass}
           type="text"
           placeholder={title}
-          value={filter}
-          onChange={(event) => setFilter(event.target.value)}
+          value={userFilter}
+          onChange={onFilterChange}
         ></input>
       </div>
       <div>
-        <select
-          multiple
-          name="list-box"
-          onChange={(event) => onSelectedItemsChange?.([...event.target.selectedOptions].map((option) => option.value))}
-          className={multiSelectClass}
-        >
+        <select ref={selectRef} multiple name="list-box" onChange={onSelectChange} className={multiSelectClass}>
           {filteredTotal ? (
-            <option value="_stunes_all">All ({parentheticalItems.join(', ')})</option>
+            <option value={optionValueAll} selected>
+              All ({parentheticalItems.join(', ')})
+            </option>
           ) : (
-            <option value="_stunes_no_results">(no results)</option>
+            <option value={optionValueNoResults}>(no results)</option>
           )}
           {sortedItems.map((item) => (
             <option key={item.key} value={item.key}>
@@ -71,6 +72,63 @@ function SortableList({ title, pluralTitle, onSelectedItemsChange, items }: Sort
       </div>
     </div>
   );
+
+  function getSortedItemsForFilter(filter: string, items: { key: string; value: string }[]) {
+    const filterLowerCase = filter.toLocaleLowerCase();
+    return items.filter((item) => item.value.toLocaleLowerCase().includes(filterLowerCase));
+  }
+
+  function onFilterChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const newFilter = event.target.value;
+    setUserFilter(newFilter);
+
+    const select = selectRef.current;
+    if (!select) {
+      return;
+    }
+
+    setSelectedValues(select, newFilter);
+  }
+
+  function onSelectChange(event: React.ChangeEvent<HTMLSelectElement>) {
+    if (!onSelectedItemsChange) {
+      return;
+    }
+
+    const select = event.target;
+    setSelectedValues(select, userFilter);
+  }
+
+  function setSelectedValues(select: HTMLSelectElement, filter: string) {
+    if (!onSelectedItemsChange) {
+      return;
+    }
+
+    const filtered = getSortedItemsForFilter(filter, initialSortedItems);
+    if (!filtered.length) {
+      // NO RESULTS option is selected
+      onSelectedItemsChange([optionValueNoResults]);
+      return;
+    }
+
+    const selectedValues = [...select.selectedOptions].map((option) => option.value);
+    if (selectedValues.length === 1 && select.selectedIndex === 0) {
+      // ALL option is selected
+      onSelectedItemsChange(filter ? filtered.map((item) => item.key) : []);
+      return;
+    }
+
+    if (selectedValues.includes(optionValueAll)) {
+      // Multiple are selected but ALL option is also selected.
+      // Deselect everything except ALL option.
+      select.selectedIndex = 0;
+      onSelectedItemsChange([]);
+      //setSelectedValues(select, filter);
+      return;
+    }
+
+    onSelectedItemsChange(selectedValues);
+  }
 }
 
 export default SortableList;
