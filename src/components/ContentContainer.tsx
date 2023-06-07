@@ -7,7 +7,7 @@ import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAs
 import { getPlaylistItemsAsync, Track } from '../utils/spotifyWebApi/playlists';
 import { className, filtersClass, statusClass } from './ContentContainer.css';
 import SortableGenresList from './SortableGenresList';
-import SortableList from './SortableList';
+import SortableList, { optionValueNoResults } from './SortableList';
 import TrackList, { TrackListFilter } from './TrackList';
 
 type ContentContainerProps = {
@@ -16,6 +16,10 @@ type ContentContainerProps = {
 
 function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
   const queryKey = 'getPlaylistTracks';
+
+  const [artistsMap, setArtistsMap] = useState<Map<string, string>>(new Map());
+  const [albumsMap, setAlbumsMap] = useState<Map<string, string>>(new Map());
+  const [tracksMap, setTracksMap] = useState<Map<string, Track>>(new Map());
   const [trackListFilter, setTrackListFilter] = useState<TrackListFilter>({
     hideAll: false,
     genres: [],
@@ -45,6 +49,24 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
       if (!propsResult.ok) {
         return Ok.EMPTY;
       }
+
+      const artists: Map<string, string> = new Map();
+      const albums: Map<string, string> = new Map();
+      const tracks: Map<string, Track> = new Map();
+
+      for (const track of propsResult.val) {
+        tracks.set(track.id, track);
+
+        track.artists.forEach((artist) => {
+          artists.set(artist.id, artist.name);
+        });
+
+        albums.set(track.album.id, track.album.name);
+      }
+
+      setArtistsMap(artists);
+      setAlbumsMap(albums);
+      setTracksMap(tracks);
 
       return new Ok(propsResult.val);
     },
@@ -77,43 +99,29 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
 
     if (playlistTracksResult?.ok) {
       if (playlistTracksResult.val) {
-        const artists: Map<string, string> = new Map();
-        const albums: Map<string, string> = new Map();
-        const tracks: Map<string, Track> = new Map();
-
-        for (const track of playlistTracksResult.val) {
-          tracks.set(track.id, track);
-
-          track.artists.forEach((artist) => {
-            artists.set(artist.id, artist.name);
-          });
-
-          albums.set(track.album.id, track.album.name);
-        }
-
         return (
           <>
             <div className={filtersClass}>
               <SortableGenresList
-                artistIds={new Set(artists.keys())}
+                artistIds={new Set(artistsMap.keys())}
                 onSelectedGenresChange={onSelectedGenresChange}
                 onUpdateArtistGenreMap={onUpdateArtistGenreMap}
               />
               <SortableList
                 title="Artist"
                 pluralTitle="Artists"
-                items={artists}
+                items={artistsMap}
                 onSelectedItemsChange={onSelectedArtistsChange}
               />
               <SortableList
                 title="Album"
                 pluralTitle="Albums"
-                items={albums}
+                items={albumsMap}
                 onSelectedItemsChange={onSelectedAlbumsChange}
               />
             </div>
 
-            <TrackList tracks={tracks} filter={trackListFilter} artistGenreMap={artistGenreMap} />
+            <TrackList tracks={tracksMap} filter={trackListFilter} artistGenreMap={artistGenreMap} />
           </>
         );
       }
@@ -136,6 +144,31 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
       ...trackListFilter,
       artists: selectedArtists,
     });
+
+    if (!playlistTracksResult?.ok || !playlistTracksResult.val) {
+      return;
+    }
+
+    const albums: Map<string, string> = new Map();
+    for (const track of playlistTracksResult.val) {
+      if (selectedArtists[0] === optionValueNoResults) {
+        continue;
+      }
+
+      if (selectedArtists.length) {
+        const intersection = track.artists
+          .map((artist) => artist.id)
+          .filter((artistId) => selectedArtists.includes(artistId));
+
+        if (!intersection.length) {
+          continue;
+        }
+      }
+
+      albums.set(track.album.id, track.album.name);
+    }
+
+    setAlbumsMap(albums);
   }
 
   function onSelectedAlbumsChange(selectedAlbums: string[]) {
