@@ -37,9 +37,21 @@ function TrackList({ tracks, filter, artistGenreMap }: TrackListProps) {
           {filter.hideAll
             ? undefined
             : [...tracks].map(([id, track]) => {
-                const hideRow =
-                  (filter.artists.length && !track.artists.some((artist) => filter.artists.includes(artist.id))) ||
-                  (filter.albums.length && !filter.albums.some((album) => album === track.album.id));
+                let hideRow = false;
+                if (filter.artists.length) {
+                  hideRow = !track.artists.some((artist) => filter.artists.includes(artist.id));
+                }
+
+                if (!hideRow && filter.albums.length) {
+                  hideRow = !filter.albums.some((album) => album === track.album.id);
+                }
+
+                if (!hideRow && filter.genres.length) {
+                  const artistsGenres = artistGenreMap.getGenresForArtists(track.artists.map((artist) => artist.id));
+                  const intersection = artistsGenres.filter((artistGenre) => filter.genres.includes(artistGenre));
+                  hideRow = !intersection.length;
+                }
+
                 return hideRow ? undefined : (
                   <tr key={id}>
                     <td>{trackIndex++}</td>

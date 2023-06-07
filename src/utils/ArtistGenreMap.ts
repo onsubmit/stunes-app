@@ -20,4 +20,13 @@ export class ArtistGenreMap {
 
     return [...genres];
   }
+
+  getGenresForArtists(artistIds: string[]): string[] {
+    const genres: string[] = [];
+    for (const artistId of artistIds) {
+      genres.push(...this.getGenresForArtist(artistId));
+    }
+
+    return [...new Set(genres)];
+  }
 }
