@@ -176,6 +176,27 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
       ...trackListFilter,
       albums: selectedAlbums,
     });
+
+    if (!playlistTracksResult?.ok || !playlistTracksResult.val) {
+      return;
+    }
+
+    const artists: Map<string, string> = new Map();
+    for (const track of playlistTracksResult.val) {
+      if (selectedAlbums[0] === optionValueNoResults) {
+        continue;
+      }
+
+      if (selectedAlbums.length && !selectedAlbums.includes(track.album.id)) {
+        continue;
+      }
+
+      track.artists.forEach((artist) => {
+        artists.set(artist.id, artist.name);
+      });
+    }
+
+    setArtistsMap(artists);
   }
 
   function onUpdateArtistGenreMap(artistId: string, genres: string[]) {
