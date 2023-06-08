@@ -1,4 +1,4 @@
-export class ArtistGenreMap {
+class ArtistGenreMap {
   private _map = new Map<string, Set<string>>();
 
   add = (artistId: string, genres: string[]): void => {
@@ -29,4 +29,12 @@ export class ArtistGenreMap {
 
     return [...new Set(genres)];
   }
+
+  hasGenre(artistIds: string[], genre: string) {
+    const genres = this.getGenresForArtists(artistIds);
+    return genres.includes(genre);
+  }
 }
+
+const artistGenreMap = new ArtistGenreMap();
+export { artistGenreMap };

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Err, Ok, Result } from 'ts-results';
 
-import { ArtistGenreMap } from '../utils/ArtistGenreMap';
+import { artistGenreMap } from '../utils/ArtistGenreMap';
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import { getPlaylistItemsAsync, Track } from '../utils/spotifyWebApi/playlists';
 import { className, filtersClass, statusClass } from './ContentContainer.css';
@@ -19,6 +19,7 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
 
   const [artistsMap, setArtistsMap] = useState<Map<string, string>>(new Map());
   const [artistsFilter, setArtistsFilter] = useState<Set<string>>(new Set());
+  const [albumsFilter, setAlbumsFilter] = useState<Set<string>>(new Set());
   const [albumsMap, setAlbumsMap] = useState<Map<string, string>>(new Map());
   const [tracksMap, setTracksMap] = useState<Map<string, Track>>(new Map());
   const [trackListFilter, setTrackListFilter] = useState<TrackListFilter>({
@@ -27,8 +28,6 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
     artists: [],
     albums: [],
   });
-
-  const artistGenreMap = new ArtistGenreMap();
 
   const {
     isLoading,
@@ -120,12 +119,12 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
                 title="Album"
                 pluralTitle="Albums"
                 items={albumsMap}
-                keyFilter={new Set()}
+                keyFilter={albumsFilter}
                 onSelectedItemsChange={onSelectedAlbumsChange}
               />
             </div>
 
-            <TrackList tracks={tracksMap} filter={trackListFilter} artistGenreMap={artistGenreMap} />
+            <TrackList tracks={tracksMap} filter={trackListFilter} />
           </>
         );
       }
@@ -141,6 +140,37 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
       ...trackListFilter,
       genres: selectedGenres,
     });
+
+    if (!playlistTracksResult?.ok || !playlistTracksResult.val) {
+      return;
+    }
+
+    const artistIds = new Set<string>();
+    const albumIds = new Set<string>();
+    if (selectedGenres[0] !== optionValueNoResults) {
+      for (const track of playlistTracksResult.val) {
+        if (
+          selectedGenres.length &&
+          !selectedGenres.some((genre) =>
+            artistGenreMap.hasGenre(
+              track.artists.map((artist) => artist.id),
+              genre
+            )
+          )
+        ) {
+          continue;
+        }
+
+        track.artists.forEach((artist) => {
+          artistIds.add(artist.id);
+        });
+
+        albumIds.add(track.album.id);
+      }
+    }
+
+    setArtistsFilter(new Set(artistIds));
+    setAlbumsFilter(new Set(albumIds));
   }
 
   function onSelectedArtistsChange(selectedArtists: string[]) {
@@ -153,7 +183,7 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
       return;
     }
 
-    const albums: Map<string, string> = new Map();
+    const albums = new Map<string, string>();
     if (selectedArtists[0] !== optionValueNoResults) {
       for (const track of playlistTracksResult.val) {
         if (selectedArtists.length) {
@@ -184,7 +214,7 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
       return;
     }
 
-    const artistIds: Set<string> = new Set();
+    const artistIds = new Set<string>();
     if (selectedAlbums[0] !== optionValueNoResults) {
       for (const track of playlistTracksResult.val) {
         if (selectedAlbums.length && !selectedAlbums.includes(track.album.id)) {

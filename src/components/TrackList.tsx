@@ -1,4 +1,4 @@
-import { ArtistGenreMap } from '../utils/ArtistGenreMap';
+import { artistGenreMap } from '../utils/ArtistGenreMap';
 import { millisecondsToTimeString } from '../utils/millisecondsToTimeString';
 import { Track } from '../utils/spotifyWebApi/playlists';
 import { albumArtPhoto, albumColumnClass, className, tableClass, titleClass, titleColumnClass } from './TrackList.css';
@@ -13,11 +13,9 @@ export type TrackListFilter = {
 export type TrackListProps = {
   tracks: Map<string, Track>;
   filter: TrackListFilter;
-  artistGenreMap: ArtistGenreMap;
 };
 
-function TrackList({ tracks, filter, artistGenreMap }: TrackListProps) {
-  console.log(artistGenreMap);
+function TrackList({ tracks, filter }: TrackListProps) {
   console.log(filter);
 
   let trackIndex = 1;
