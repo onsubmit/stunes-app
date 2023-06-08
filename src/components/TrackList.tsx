@@ -1,4 +1,4 @@
-import { ArtistGenreMap } from '../utils/artistGenreMap';
+import { ArtistGenreMap } from '../utils/ArtistGenreMap';
 import { millisecondsToTimeString } from '../utils/millisecondsToTimeString';
 import { Track } from '../utils/spotifyWebApi/playlists';
 import { albumArtPhoto, albumColumnClass, className, tableClass, titleClass, titleColumnClass } from './TrackList.css';

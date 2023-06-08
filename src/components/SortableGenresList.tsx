@@ -8,11 +8,17 @@ import SortableList from './SortableList';
 
 export type SortableGenresListProps = {
   artistIds: Set<string>;
+  artistIdsFilter: Set<string>;
   onUpdateArtistGenreMap: (artistId: string, genres: string[]) => void;
   onSelectedGenresChange: (selectedItems: string[]) => void;
 };
 
-function SortableGenresList({ artistIds, onUpdateArtistGenreMap, onSelectedGenresChange }: SortableGenresListProps) {
+function SortableGenresList({
+  artistIds,
+  artistIdsFilter,
+  onUpdateArtistGenreMap,
+  onSelectedGenresChange,
+}: SortableGenresListProps) {
   const queryKey = 'getArtistGenres';
 
   const {
@@ -70,6 +76,10 @@ function SortableGenresList({ artistIds, onUpdateArtistGenreMap, onSelectedGenre
         const genres: Map<string, string> = new Map();
 
         for (const artist of artistsResult.val) {
+          if (artistIdsFilter.size && !artistIdsFilter.has(artist.id)) {
+            continue;
+          }
+
           onUpdateArtistGenreMap(artist.id, artist.genres);
 
           for (const genre of artist.genres) {
@@ -82,6 +92,7 @@ function SortableGenresList({ artistIds, onUpdateArtistGenreMap, onSelectedGenre
             title="Genre"
             pluralTitle="Genres"
             items={genres}
+            keyFilter={new Set()}
             onSelectedItemsChange={onSelectedGenresChange}
           />
         );

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Err, Ok, Result } from 'ts-results';
 
-import { ArtistGenreMap } from '../utils/artistGenreMap';
+import { ArtistGenreMap } from '../utils/ArtistGenreMap';
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import { getPlaylistItemsAsync, Track } from '../utils/spotifyWebApi/playlists';
 import { className, filtersClass, statusClass } from './ContentContainer.css';
@@ -18,6 +18,7 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
   const queryKey = 'getPlaylistTracks';
 
   const [artistsMap, setArtistsMap] = useState<Map<string, string>>(new Map());
+  const [artistsFilter, setArtistsFilter] = useState<Set<string>>(new Set());
   const [albumsMap, setAlbumsMap] = useState<Map<string, string>>(new Map());
   const [tracksMap, setTracksMap] = useState<Map<string, Track>>(new Map());
   const [trackListFilter, setTrackListFilter] = useState<TrackListFilter>({
@@ -104,6 +105,7 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
             <div className={filtersClass}>
               <SortableGenresList
                 artistIds={new Set(artistsMap.keys())}
+                artistIdsFilter={artistsFilter}
                 onSelectedGenresChange={onSelectedGenresChange}
                 onUpdateArtistGenreMap={onUpdateArtistGenreMap}
               />
@@ -111,12 +113,14 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
                 title="Artist"
                 pluralTitle="Artists"
                 items={artistsMap}
+                keyFilter={artistsFilter}
                 onSelectedItemsChange={onSelectedArtistsChange}
               />
               <SortableList
                 title="Album"
                 pluralTitle="Albums"
                 items={albumsMap}
+                keyFilter={new Set()}
                 onSelectedItemsChange={onSelectedAlbumsChange}
               />
             </div>
@@ -150,25 +154,24 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
     }
 
     const albums: Map<string, string> = new Map();
-    for (const track of playlistTracksResult.val) {
-      if (selectedArtists[0] === optionValueNoResults) {
-        continue;
-      }
+    if (selectedArtists[0] !== optionValueNoResults) {
+      for (const track of playlistTracksResult.val) {
+        if (selectedArtists.length) {
+          const intersection = track.artists
+            .map((artist) => artist.id)
+            .filter((artistId) => selectedArtists.includes(artistId));
 
-      if (selectedArtists.length) {
-        const intersection = track.artists
-          .map((artist) => artist.id)
-          .filter((artistId) => selectedArtists.includes(artistId));
-
-        if (!intersection.length) {
-          continue;
+          if (!intersection.length) {
+            continue;
+          }
         }
-      }
 
-      albums.set(track.album.id, track.album.name);
+        albums.set(track.album.id, track.album.name);
+      }
     }
 
     setAlbumsMap(albums);
+    setArtistsFilter(new Set(selectedArtists));
   }
 
   function onSelectedAlbumsChange(selectedAlbums: string[]) {
@@ -181,22 +184,20 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
       return;
     }
 
-    const artists: Map<string, string> = new Map();
-    for (const track of playlistTracksResult.val) {
-      if (selectedAlbums[0] === optionValueNoResults) {
-        continue;
-      }
+    const artistIds: Set<string> = new Set();
+    if (selectedAlbums[0] !== optionValueNoResults) {
+      for (const track of playlistTracksResult.val) {
+        if (selectedAlbums.length && !selectedAlbums.includes(track.album.id)) {
+          continue;
+        }
 
-      if (selectedAlbums.length && !selectedAlbums.includes(track.album.id)) {
-        continue;
+        track.artists.forEach((artist) => {
+          artistIds.add(artist.id);
+        });
       }
-
-      track.artists.forEach((artist) => {
-        artists.set(artist.id, artist.name);
-      });
     }
 
-    setArtistsMap(artists);
+    setArtistsFilter(artistIds);
   }
 
   function onUpdateArtistGenreMap(artistId: string, genres: string[]) {
