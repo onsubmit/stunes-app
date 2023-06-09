@@ -11,18 +11,19 @@ export type SortedListProps = {
 };
 
 export const optionValueNoResults = '_stunes_no_results';
+export const optionValueAll = '_stunes_all';
 
 function SortedList({ title, pluralTitle, onSelectedItemsChange, items, keyFilter }: SortedListProps) {
-  const optionValueAll = '_stunes_all';
   const [valueFilter, setValueFilter] = useState('');
   const selectRef = useRef<HTMLSelectElement>(null);
 
   useEffect(() => {
-    if (!selectRef.current) {
+    const select = selectRef.current;
+    if (!select) {
       return;
     }
 
-    selectRef.current.selectedIndex = 0;
+    select.selectedIndex = 0;
   }, [keyFilter]);
 
   const initialSortedItems = [...items]

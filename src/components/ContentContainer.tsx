@@ -7,7 +7,7 @@ import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAs
 import { getPlaylistItemsAsync, Track } from '../utils/spotifyWebApi/playlists';
 import { className, filtersClass, statusClass } from './ContentContainer.css';
 import SortedGenreList from './SortedGenreList';
-import SortedList, { optionValueNoResults } from './SortedList';
+import SortedList, { optionValueAll, optionValueNoResults } from './SortedList';
 import TrackList, { TrackListFilter } from './TrackList';
 
 type ContentContainerProps = {
@@ -135,12 +135,22 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
   return <div className={className}>{getElement()}</div>;
 
   function onSelectedGenresChange(selectedGenres: string[]) {
-    setTrackListFilter({
-      ...trackListFilter,
-      genres: selectedGenres,
-    });
-
     if (!playlistTracksResult?.ok || !playlistTracksResult.val) {
+      return;
+    }
+
+    if (!selectedGenres.length || selectedGenres[0] === optionValueAll) {
+      setArtistsFilter(new Set());
+      setAlbumsFilter(new Set());
+
+      const newTrackListFilter = {
+        ...trackListFilter,
+        genres: selectedGenres,
+        artists: [],
+        albums: [],
+      };
+
+      setTrackListFilter(newTrackListFilter);
       return;
     }
 
@@ -168,17 +178,34 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
       }
     }
 
-    setArtistsFilter(new Set(artistIds));
-    setAlbumsFilter(new Set(albumIds));
+    setArtistsFilter(artistIds);
+    setAlbumsFilter(albumIds);
+
+    const newTrackListFilter = {
+      ...trackListFilter,
+      genres: selectedGenres,
+      artists: [...artistIds],
+      albums: [...albumIds],
+    };
+
+    setTrackListFilter(newTrackListFilter);
   }
 
   function onSelectedArtistsChange(selectedArtists: string[]) {
-    setTrackListFilter({
-      ...trackListFilter,
-      artists: selectedArtists,
-    });
-
     if (!playlistTracksResult?.ok || !playlistTracksResult.val) {
+      return;
+    }
+
+    if (!selectedArtists.length || selectedArtists[0] === optionValueAll) {
+      setAlbumsFilter(new Set());
+
+      const newTrackListFilter = {
+        ...trackListFilter,
+        artists: selectedArtists,
+        albums: [],
+      };
+
+      setTrackListFilter(newTrackListFilter);
       return;
     }
 
@@ -200,6 +227,14 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
     }
 
     setAlbumsFilter(albumIds);
+
+    const newTrackListFilter = {
+      ...trackListFilter,
+      artists: selectedArtists,
+      albums: [...albumIds],
+    };
+
+    setTrackListFilter(newTrackListFilter);
   }
 
   function onSelectedAlbumsChange(selectedAlbums: string[]) {

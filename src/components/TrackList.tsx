@@ -28,6 +28,9 @@ function TrackList({ tracks, filter }: TrackListProps) {
   return (
     <div className={className}>
       <div className={innerClass}>
+        <div>
+          <pre>{JSON.stringify(filter, null, 2)}</pre>
+        </div>
         <table className={tableClass}>
           <thead>
             <tr>
