@@ -3,7 +3,7 @@ import { Err, Ok, Result } from 'ts-results';
 
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import { Artist, getArtistsAsync } from '../utils/spotifyWebApi/artists';
-import { statusClass } from './SortableGenresList.css';
+import { className, statusClass } from './SortableGenresList.css';
 import SortableList from './SortableList';
 
 export type SortableGenresListProps = {
@@ -89,13 +89,15 @@ function SortableGenresList({
         }
 
         return (
-          <SortableList
-            title="Genre"
-            pluralTitle="Genres"
-            items={genres}
-            keyFilter={genreFilter}
-            onSelectedItemsChange={onSelectedGenresChange}
-          />
+          <div className={className}>
+            <SortableList
+              title="Genre"
+              pluralTitle="Genres"
+              items={genres}
+              keyFilter={genreFilter}
+              onSelectedItemsChange={onSelectedGenresChange}
+            />
+          </div>
         );
       }
     }
