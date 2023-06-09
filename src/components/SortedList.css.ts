@@ -36,6 +36,7 @@ export const multiSelectClass = style({
       border: '1px solid #333',
     },
     option: {
+      color: '#fff',
       padding: '8px',
       margin: 0,
       $nest: {
