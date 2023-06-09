@@ -3,22 +3,22 @@ import { Err, Ok, Result } from 'ts-results';
 
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import { Artist, getArtistsAsync } from '../utils/spotifyWebApi/artists';
-import { className, statusClass } from './SortableGenresList.css';
-import SortableList from './SortableList';
+import { className, statusClass } from './SortedGenreList.css';
+import SortedList from './SortedList';
 
-export type SortableGenresListProps = {
+export type SortedGenreListProps = {
   artistIds: Set<string>;
   artistIdsFilter: Set<string>;
   onUpdateArtistGenreMap: (artistId: string, genres: string[]) => void;
   onSelectedGenresChange: (selectedItems: string[]) => void;
 };
 
-function SortableGenresList({
+function SortedGenreList({
   artistIds,
   artistIdsFilter,
   onUpdateArtistGenreMap,
   onSelectedGenresChange,
-}: SortableGenresListProps) {
+}: SortedGenreListProps) {
   const queryKey = 'getArtistGenres';
 
   const {
@@ -90,7 +90,7 @@ function SortableGenresList({
 
         return (
           <div className={className}>
-            <SortableList
+            <SortedList
               title="Genre"
               pluralTitle="Genres"
               items={genres}
@@ -108,4 +108,4 @@ function SortableGenresList({
   return getElement();
 }
 
-export default SortableGenresList;
+export default SortedGenreList;

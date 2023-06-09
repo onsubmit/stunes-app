@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react';
 
-import { className, filterClass, multiSelectClass } from './SortableList.css';
+import { className, filterClass, multiSelectClass } from './SortedList.css';
 
-export type SortableListProps = {
+export type SortedListProps = {
   title: string;
   pluralTitle: string;
   items: Map<string, string>;
@@ -12,7 +12,7 @@ export type SortableListProps = {
 
 export const optionValueNoResults = '_stunes_no_results';
 
-function SortableList({ title, pluralTitle, onSelectedItemsChange, items, keyFilter }: SortableListProps) {
+function SortedList({ title, pluralTitle, onSelectedItemsChange, items, keyFilter }: SortedListProps) {
   const optionValueAll = '_stunes_all';
 
   const [userFilter, setUserFilter] = useState('');
@@ -150,4 +150,4 @@ function SortableList({ title, pluralTitle, onSelectedItemsChange, items, keyFil
   }
 }
 
-export default SortableList;
+export default SortedList;

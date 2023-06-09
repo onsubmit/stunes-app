@@ -6,8 +6,8 @@ import { artistGenreMap } from '../utils/ArtistGenreMap';
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import { getPlaylistItemsAsync, Track } from '../utils/spotifyWebApi/playlists';
 import { className, filtersClass, statusClass } from './ContentContainer.css';
-import SortableGenresList from './SortableGenresList';
-import SortableList, { optionValueNoResults } from './SortableList';
+import SortedGenreList from './SortedGenreList';
+import SortedList, { optionValueNoResults } from './SortedList';
 import TrackList, { TrackListFilter } from './TrackList';
 
 type ContentContainerProps = {
@@ -102,20 +102,20 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
         return (
           <>
             <div className={filtersClass}>
-              <SortableGenresList
+              <SortedGenreList
                 artistIds={new Set(artistsMap.keys())}
                 artistIdsFilter={artistsFilter}
                 onSelectedGenresChange={onSelectedGenresChange}
                 onUpdateArtistGenreMap={onUpdateArtistGenreMap}
               />
-              <SortableList
+              <SortedList
                 title="Artist"
                 pluralTitle="Artists"
                 items={artistsMap}
                 keyFilter={artistsFilter}
                 onSelectedItemsChange={onSelectedArtistsChange}
               />
-              <SortableList
+              <SortedList
                 title="Album"
                 pluralTitle="Albums"
                 items={albumsMap}
