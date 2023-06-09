@@ -75,15 +75,16 @@ function SortableGenresList({
       if (artistsResult.val) {
         const genres: Map<string, string> = new Map();
 
+        const genreFilter = new Set<string>();
         for (const artist of artistsResult.val) {
-          if (artistIdsFilter.size && !artistIdsFilter.has(artist.id)) {
-            continue;
-          }
-
           onUpdateArtistGenreMap(artist.id, artist.genres);
 
           for (const genre of artist.genres) {
             genres.set(genre, genre);
+
+            if (artistIdsFilter.size && artistIdsFilter.has(artist.id)) {
+              genreFilter.add(genre);
+            }
           }
         }
 
@@ -92,7 +93,7 @@ function SortableGenresList({
             title="Genre"
             pluralTitle="Genres"
             items={genres}
-            keyFilter={new Set()}
+            keyFilter={genreFilter}
             onSelectedItemsChange={onSelectedGenresChange}
           />
         );

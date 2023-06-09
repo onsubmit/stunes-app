@@ -183,7 +183,7 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
       return;
     }
 
-    const albums = new Map<string, string>();
+    const albumIds = new Set<string>();
     if (selectedArtists[0] !== optionValueNoResults) {
       for (const track of playlistTracksResult.val) {
         if (selectedArtists.length) {
@@ -196,12 +196,12 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
           }
         }
 
-        albums.set(track.album.id, track.album.name);
+        albumIds.add(track.album.id);
       }
     }
 
-    setAlbumsMap(albums);
     setArtistsFilter(new Set(selectedArtists));
+    setAlbumsFilter(albumIds);
   }
 
   function onSelectedAlbumsChange(selectedAlbums: string[]) {
