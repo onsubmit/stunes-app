@@ -8,17 +8,11 @@ import SortedList from './SortedList';
 
 export type SortedGenreListProps = {
   artistIds: Set<string>;
-  artistIdsFilter: Set<string>;
   onUpdateArtistGenreMap: (artistId: string, genres: string[]) => void;
   onSelectedGenresChange: (selectedItems: string[]) => void;
 };
 
-function SortedGenreList({
-  artistIds,
-  artistIdsFilter,
-  onUpdateArtistGenreMap,
-  onSelectedGenresChange,
-}: SortedGenreListProps) {
+function SortedGenreList({ artistIds, onUpdateArtistGenreMap, onSelectedGenresChange }: SortedGenreListProps) {
   const queryKey = 'getArtistGenres';
 
   const {
@@ -75,16 +69,11 @@ function SortedGenreList({
       if (artistsResult.val) {
         const genres: Map<string, string> = new Map();
 
-        const genreFilter = new Set<string>();
         for (const artist of artistsResult.val) {
           onUpdateArtistGenreMap(artist.id, artist.genres);
 
           for (const genre of artist.genres) {
             genres.set(genre, genre);
-
-            if (artistIdsFilter.size && artistIdsFilter.has(artist.id)) {
-              genreFilter.add(genre);
-            }
           }
         }
 
@@ -94,7 +83,6 @@ function SortedGenreList({
               title="Genre"
               pluralTitle="Genres"
               items={genres}
-              keyFilter={genreFilter}
               onSelectedItemsChange={onSelectedGenresChange}
             />
           </div>

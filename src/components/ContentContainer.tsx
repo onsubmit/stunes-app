@@ -104,7 +104,6 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
             <div className={filtersClass}>
               <SortedGenreList
                 artistIds={new Set(artistsMap.keys())}
-                artistIdsFilter={artistsFilter}
                 onSelectedGenresChange={onSelectedGenresChange}
                 onUpdateArtistGenreMap={onUpdateArtistGenreMap}
               />
@@ -200,7 +199,6 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
       }
     }
 
-    setArtistsFilter(new Set(selectedArtists));
     setAlbumsFilter(albumIds);
   }
 
@@ -209,25 +207,6 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
       ...trackListFilter,
       albums: selectedAlbums,
     });
-
-    if (!playlistTracksResult?.ok || !playlistTracksResult.val) {
-      return;
-    }
-
-    const artistIds = new Set<string>();
-    if (selectedAlbums[0] !== optionValueNoResults) {
-      for (const track of playlistTracksResult.val) {
-        if (selectedAlbums.length && !selectedAlbums.includes(track.album.id)) {
-          continue;
-        }
-
-        track.artists.forEach((artist) => {
-          artistIds.add(artist.id);
-        });
-      }
-    }
-
-    setArtistsFilter(artistIds);
   }
 
   function onUpdateArtistGenreMap(artistId: string, genres: string[]) {

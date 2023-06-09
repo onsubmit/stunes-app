@@ -24,8 +24,6 @@ export type TrackListProps = {
 };
 
 function TrackList({ tracks, filter }: TrackListProps) {
-  console.log(filter);
-
   let trackIndex = 1;
   return (
     <div className={className}>

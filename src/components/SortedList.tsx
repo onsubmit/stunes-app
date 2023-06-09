@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { className, filterClass, multiSelectClass } from './SortedList.css';
 
@@ -6,7 +6,7 @@ export type SortedListProps = {
   title: string;
   pluralTitle: string;
   items: Map<string, string>;
-  keyFilter: Set<string>;
+  keyFilter?: Set<string>;
   onSelectedItemsChange?: (selectedItems: string[]) => void;
 };
 
@@ -14,9 +14,16 @@ export const optionValueNoResults = '_stunes_no_results';
 
 function SortedList({ title, pluralTitle, onSelectedItemsChange, items, keyFilter }: SortedListProps) {
   const optionValueAll = '_stunes_all';
-
-  const [userFilter, setUserFilter] = useState('');
+  const [valueFilter, setValueFilter] = useState('');
   const selectRef = useRef<HTMLSelectElement>(null);
+
+  useEffect(() => {
+    if (!selectRef.current) {
+      return;
+    }
+
+    selectRef.current.selectedIndex = 0;
+  }, [keyFilter]);
 
   const initialSortedItems = [...items]
     .map(([key, value]) => ({ key, value }))
@@ -35,10 +42,7 @@ function SortedList({ title, pluralTitle, onSelectedItemsChange, items, keyFilte
     });
 
   const originalTotal = initialSortedItems.length;
-  const sortedItems =
-    userFilter || keyFilter.size
-      ? getSortedItemsForFilter(keyFilter, userFilter, initialSortedItems)
-      : initialSortedItems;
+  const sortedItems = valueFilter || keyFilter?.size ? getSortedItemsForFilter(initialSortedItems) : initialSortedItems;
 
   const filteredTotal = sortedItems.length;
   const pluralizedTitle = filteredTotal === 1 ? title : pluralTitle;
@@ -54,8 +58,8 @@ function SortedList({ title, pluralTitle, onSelectedItemsChange, items, keyFilte
           className={filterClass}
           type="text"
           placeholder={title}
-          value={userFilter}
-          onChange={onFilterChange}
+          value={valueFilter}
+          onChange={onValueFilterChange}
         ></input>
       </div>
       <div>
@@ -82,14 +86,10 @@ function SortedList({ title, pluralTitle, onSelectedItemsChange, items, keyFilte
     </div>
   );
 
-  function getSortedItemsForFilter(
-    keyFilter: Set<string>,
-    valueVilter: string,
-    items: { key: string; value: string }[]
-  ) {
-    const filterLowerCase = valueVilter.toLocaleLowerCase();
+  function getSortedItemsForFilter(items: { key: string; value: string }[]) {
+    const filterLowerCase = valueFilter.toLocaleLowerCase();
     return items.filter((item) => {
-      if (keyFilter.size && !keyFilter.has(item.key)) {
+      if (keyFilter?.size && !keyFilter.has(item.key)) {
         return false;
       }
 
@@ -97,16 +97,16 @@ function SortedList({ title, pluralTitle, onSelectedItemsChange, items, keyFilte
     });
   }
 
-  function onFilterChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const newFilter = event.target.value;
-    setUserFilter(newFilter);
+  function onValueFilterChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const newValueFilter = event.target.value;
+    setValueFilter(newValueFilter);
 
     const select = selectRef.current;
     if (!select) {
       return;
     }
 
-    setSelectedValues(select, newFilter);
+    setSelectedValues(select, newValueFilter);
   }
 
   function onSelectChange(event: React.ChangeEvent<HTMLSelectElement>) {
@@ -115,15 +115,15 @@ function SortedList({ title, pluralTitle, onSelectedItemsChange, items, keyFilte
     }
 
     const select = event.target;
-    setSelectedValues(select, userFilter);
+    setSelectedValues(select, valueFilter);
   }
 
-  function setSelectedValues(select: HTMLSelectElement, filter: string) {
+  function setSelectedValues(select: HTMLSelectElement, valueFilter: string) {
     if (!onSelectedItemsChange) {
       return;
     }
 
-    const filtered = getSortedItemsForFilter(keyFilter, filter, initialSortedItems);
+    const filtered = getSortedItemsForFilter(initialSortedItems);
     if (!filtered.length) {
       // NO RESULTS option is selected
       onSelectedItemsChange([optionValueNoResults]);
@@ -133,7 +133,7 @@ function SortedList({ title, pluralTitle, onSelectedItemsChange, items, keyFilte
     const selectedValues = [...select.selectedOptions].map((option) => option.value);
     if (selectedValues.length === 1 && select.selectedIndex === 0) {
       // ALL option is selected
-      onSelectedItemsChange(filter ? filtered.map((item) => item.key) : []);
+      onSelectedItemsChange(keyFilter?.size || valueFilter ? filtered.map((item) => item.key) : []);
       return;
     }
 
@@ -142,7 +142,6 @@ function SortedList({ title, pluralTitle, onSelectedItemsChange, items, keyFilte
       // Deselect everything except ALL option.
       select.selectedIndex = 0;
       onSelectedItemsChange([]);
-      //setSelectedValues(select, filter);
       return;
     }
 
