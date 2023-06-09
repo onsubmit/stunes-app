@@ -1,7 +1,15 @@
 import { artistGenreMap } from '../utils/ArtistGenreMap';
 import { millisecondsToTimeString } from '../utils/millisecondsToTimeString';
 import { Track } from '../utils/spotifyWebApi/playlists';
-import { albumArtPhoto, albumColumnClass, className, tableClass, titleClass, titleColumnClass } from './TrackList.css';
+import {
+  albumArtPhoto,
+  albumColumnClass,
+  className,
+  innerClass,
+  tableClass,
+  titleClass,
+  titleColumnClass,
+} from './TrackList.css';
 
 export type TrackListFilter = {
   hideAll: boolean;
@@ -21,70 +29,72 @@ function TrackList({ tracks, filter }: TrackListProps) {
   let trackIndex = 1;
   return (
     <div className={className}>
-      <table className={tableClass}>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th className={titleColumnClass}>Title</th>
-            <th className={albumColumnClass}>Album</th>
-            <th>Date Added</th>
-            <th>Duration</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filter.hideAll
-            ? undefined
-            : [...tracks].map(([id, track]) => {
-                let hideRow = false;
-                if (filter.artists.length) {
-                  hideRow = !track.artists.some((artist) => filter.artists.includes(artist.id));
-                }
+      <div className={innerClass}>
+        <table className={tableClass}>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th className={titleColumnClass}>Title</th>
+              <th className={albumColumnClass}>Album</th>
+              <th>Date Added</th>
+              <th>Duration</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filter.hideAll
+              ? undefined
+              : [...tracks].map(([id, track]) => {
+                  let hideRow = false;
+                  if (filter.artists.length) {
+                    hideRow = !track.artists.some((artist) => filter.artists.includes(artist.id));
+                  }
 
-                if (!hideRow && filter.albums.length) {
-                  hideRow = !filter.albums.some((album) => album === track.album.id);
-                }
+                  if (!hideRow && filter.albums.length) {
+                    hideRow = !filter.albums.some((album) => album === track.album.id);
+                  }
 
-                if (!hideRow && filter.genres.length) {
-                  const artistsGenres = artistGenreMap.getGenresForArtists(track.artists.map((artist) => artist.id));
-                  const intersection = artistsGenres.filter((artistGenre) => filter.genres.includes(artistGenre));
-                  hideRow = !intersection.length;
-                }
+                  if (!hideRow && filter.genres.length) {
+                    const artistsGenres = artistGenreMap.getGenresForArtists(track.artists.map((artist) => artist.id));
+                    const intersection = artistsGenres.filter((artistGenre) => filter.genres.includes(artistGenre));
+                    hideRow = !intersection.length;
+                  }
 
-                return hideRow ? undefined : (
-                  <tr key={id}>
-                    <td>{trackIndex++}</td>
-                    <td>
-                      <div className={titleClass}>
-                        <div>
-                          {track.album.albumArtUrl && (
-                            <img className={albumArtPhoto} src={track.album.albumArtUrl}></img>
-                          )}
-                        </div>
-                        <div>
-                          <div>{track.song}</div>
+                  return hideRow ? undefined : (
+                    <tr key={id}>
+                      <td>{trackIndex++}</td>
+                      <td>
+                        <div className={titleClass}>
                           <div>
-                            {track.artists?.map((a, i) => {
-                              return (
-                                <span key={`artist${i}`}>
-                                  <a href={a.href} target="_blank" rel="noreferrer">
-                                    {a.name}
-                                  </a>
-                                  {i < track.artists.length - 1 ? <span>, </span> : undefined}
-                                </span>
-                              );
-                            })}
+                            {track.album.albumArtUrl && (
+                              <img className={albumArtPhoto} src={track.album.albumArtUrl}></img>
+                            )}
+                          </div>
+                          <div>
+                            <div>{track.song}</div>
+                            <div>
+                              {track.artists?.map((a, i) => {
+                                return (
+                                  <span key={`artist${i}`}>
+                                    <a href={a.href} target="_blank" rel="noreferrer">
+                                      {a.name}
+                                    </a>
+                                    {i < track.artists.length - 1 ? <span>, </span> : undefined}
+                                  </span>
+                                );
+                              })}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
-                    <td>{track.album.name}</td>
-                    <td>{track.addedAt.toLocaleDateString()}</td>
-                    <td>{millisecondsToTimeString(track.durationInMilliseconds)}</td>
-                  </tr>
-                );
-              })}
-        </tbody>
-      </table>
+                      </td>
+                      <td>{track.album.name}</td>
+                      <td>{track.addedAt.toLocaleDateString()}</td>
+                      <td>{millisecondsToTimeString(track.durationInMilliseconds)}</td>
+                    </tr>
+                  );
+                })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
