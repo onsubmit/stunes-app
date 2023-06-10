@@ -3,7 +3,8 @@ import { style } from 'typestyle';
 export const className = style({
   flex: 1,
   $nest: {
-    option: {
+    // Don't captitalize the first <option>
+    'option:not(:first-child)': {
       textTransform: 'capitalize',
     },
   },

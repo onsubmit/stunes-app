@@ -47,10 +47,10 @@ function SortedList({ title, pluralTitle, onSelectedItemsChange, items, keyFilte
 
   const filteredTotal = sortedItems.length;
   const pluralizedTitle = filteredTotal === 1 ? title : pluralTitle;
-  const parentheticalItems = [`${filteredTotal} ${pluralizedTitle.toLocaleLowerCase()}`];
-  if (filteredTotal !== originalTotal) {
-    parentheticalItems.push(`${originalTotal} total`);
-  }
+  const fullTitle =
+    filteredTotal === originalTotal
+      ? `All (${filteredTotal} ${pluralizedTitle.toLocaleLowerCase()})`
+      : `All (${filteredTotal} of ${originalTotal} ${pluralizedTitle.toLocaleLowerCase()})`;
 
   return (
     <div className={className}>
@@ -73,7 +73,7 @@ function SortedList({ title, pluralTitle, onSelectedItemsChange, items, keyFilte
           className={multiSelectClass}
         >
           {filteredTotal ? (
-            <option value={optionValueAll}>All ({parentheticalItems.join(', ')})</option>
+            <option value={optionValueAll}>{fullTitle}</option>
           ) : (
             <option value={optionValueNoResults}>(no results)</option>
           )}
