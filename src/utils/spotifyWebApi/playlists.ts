@@ -4,9 +4,11 @@ import { executeAsync } from './spotifyWebApi';
 
 export type Track = {
   album: { id: string; name: string; href: string; albumArtUrl: string };
+  albumUrl: string;
   artists: { id: string; name: string; href: string }[];
   id: string;
   song: string;
+  songUrl: string;
   addedAt: Date;
   durationInMilliseconds: number;
 };
@@ -28,7 +30,7 @@ export async function getPlaylistItemsAsync(
         offset,
         limit,
         fields:
-          'total,limit,next,items(added_at,track(id,name,duration_ms,album(id,name,href,images),artists(id,name,external_urls(spotify))))',
+          'total,limit,next,items(added_at,track(id,external_urls,name,duration_ms,album(id,external_urls,name,href,images),artists(id,name,external_urls(spotify))))',
       });
 
       tracks.push(
@@ -40,9 +42,11 @@ export async function getPlaylistItemsAsync(
           return {
             id: track.id,
             song: track.name,
+            songUrl: track.external_urls.spotify,
             addedAt: new Date(Date.parse(item.added_at)),
             durationInMilliseconds: track.duration_ms,
             album: { id: album.id, name: album.name, href: album.href, albumArtUrl: albumImage?.url || '' },
+            albumUrl: album.external_urls.spotify,
             artists: track.artists.map((a) => {
               return { name: a.name, id: a.id, href: a.external_urls.spotify };
             }),

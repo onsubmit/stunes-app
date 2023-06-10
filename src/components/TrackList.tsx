@@ -66,12 +66,21 @@ function TrackList({ tracks, filter }: TrackListProps) {
                       <td>
                         <div className={titleClass}>
                           <div>
-                            {track.album.albumArtUrl && (
-                              <img className={albumArtPhoto} src={track.album.albumArtUrl}></img>
-                            )}
+                            {track.album.albumArtUrl &&
+                              (track.albumUrl ? (
+                                <a href={track.albumUrl} target="_blank" rel="noreferrer">
+                                  <img className={albumArtPhoto} src={track.album.albumArtUrl}></img>
+                                </a>
+                              ) : (
+                                <img className={albumArtPhoto} src={track.album.albumArtUrl}></img>
+                              ))}
                           </div>
                           <div>
-                            <div>{track.song}</div>
+                            <div>
+                              <a href={track.songUrl} target="_blank" rel="noreferrer">
+                                {track.song}
+                              </a>
+                            </div>
                             <div>
                               {track.artists?.map((a, i) => {
                                 return (
@@ -87,7 +96,15 @@ function TrackList({ tracks, filter }: TrackListProps) {
                           </div>
                         </div>
                       </td>
-                      <td>{track.album.name}</td>
+                      <td>
+                        {track.albumUrl ? (
+                          <a href={track.albumUrl} target="_blank" rel="noreferrer">
+                            {track.album.name}
+                          </a>
+                        ) : (
+                          track.album.name
+                        )}
+                      </td>
                       <td>{track.addedAt.toLocaleDateString()}</td>
                       <td>{millisecondsToTimeString(track.durationInMilliseconds)}</td>
                     </tr>
