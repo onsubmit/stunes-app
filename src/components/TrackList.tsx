@@ -7,6 +7,7 @@ import {
   albumArtPhoto,
   albumColumnClass,
   className,
+  indexColumnClass,
   innerClass,
   selectedTableRowClass,
   tableClass,
@@ -103,7 +104,7 @@ function TrackList({ tracks, filter }: TrackListProps) {
                       onMouseDown={onRowMouseDownHandler(trackIndex)}
                       onMouseOver={onRowMouseOverHandler(trackIndex)}
                     >
-                      <td>
+                      <td className={indexColumnClass}>
                         <p>{trackIndex++}</p>
                       </td>
                       <td>

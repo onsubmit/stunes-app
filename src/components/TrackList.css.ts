@@ -31,7 +31,6 @@ const showPlayButton: NestedCSSProperties = {
 
 export const selectedTableRowClass = style({
   background: '#5A5A5A !important',
-  ...showPlayButton,
 });
 
 export const tableClass = style({
@@ -67,6 +66,10 @@ export const tableClass = style({
       },
     },
   },
+});
+
+export const indexColumnClass = style({
+  minWidth: '14px',
 });
 
 export const titleColumnClass = style({
