@@ -27,6 +27,27 @@ export const tableClass = style({
     'th, td': {
       padding: '12px',
     },
+    tr: {
+      $nest: {
+        p: {
+          margin: 0,
+        },
+        '&:hover': {
+          $nest: {
+            'td:first-of-type': {
+              $nest: {
+                p: {
+                  display: 'none',
+                },
+                '&::after': {
+                  content: `'▶'`,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     'tr:not(:first-of-type)': {
       $nest: {
         '&:hover': {

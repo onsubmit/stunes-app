@@ -62,7 +62,9 @@ function TrackList({ tracks, filter }: TrackListProps) {
 
                   return hideRow ? undefined : (
                     <tr key={id}>
-                      <td>{trackIndex++}</td>
+                      <td>
+                        <p>{trackIndex++}</p>
+                      </td>
                       <td>
                         <div className={titleClass}>
                           <div>
