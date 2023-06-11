@@ -101,8 +101,15 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
     if (playlistTracksResult?.ok) {
       if (playlistTracksResult.val) {
         return (
-          <Split className={splitClass} direction="vertical" sizes={[30, 70]} gutterSize={6} minSize={200}>
-            <Split className={filtersClass} minSize={300} gutterSize={6}>
+          <Split
+            className={splitClass}
+            direction="vertical"
+            sizes={[30, 70]}
+            gutterSize={6}
+            minSize={200}
+            snapOffset={0}
+          >
+            <Split className={filtersClass} minSize={300} gutterSize={6} snapOffset={0}>
               <SortedGenreList
                 artistIds={new Set(artistsMap.keys())}
                 onSelectedGenresChange={onSelectedGenresChange}
