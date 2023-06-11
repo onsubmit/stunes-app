@@ -1,4 +1,5 @@
 import { style } from 'typestyle';
+import { NestedCSSProperties } from 'typestyle/lib/types';
 
 export const className = style({
   overflow: 'auto',
@@ -13,10 +14,31 @@ export const innerClass = style({
   overflowY: 'auto',
 });
 
+const showPlayButton: NestedCSSProperties = {
+  $nest: {
+    'td:first-of-type': {
+      $nest: {
+        p: {
+          display: 'none',
+        },
+        '&::after': {
+          content: `'▶'`,
+        },
+      },
+    },
+  },
+};
+
+export const selectedTableRowClass = style({
+  background: '#5A5A5A !important',
+  ...showPlayButton,
+});
+
 export const tableClass = style({
   width: 'calc(100% - 24px)',
   borderCollapse: 'collapse',
   margin: '12px',
+  userSelect: 'none',
   $nest: {
     'thead tr': {
       borderBottom: '1px solid rgba(255, 255, 255, 0.25)',
@@ -33,18 +55,7 @@ export const tableClass = style({
           margin: 0,
         },
         '&:hover': {
-          $nest: {
-            'td:first-of-type': {
-              $nest: {
-                p: {
-                  display: 'none',
-                },
-                '&::after': {
-                  content: `'▶'`,
-                },
-              },
-            },
-          },
+          ...showPlayButton,
         },
       },
     },

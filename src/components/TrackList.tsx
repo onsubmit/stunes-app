@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+
 import { artistGenreMap } from '../utils/ArtistGenreMap';
 import { millisecondsToTimeString } from '../utils/millisecondsToTimeString';
 import { Track } from '../utils/spotifyWebApi/playlists';
@@ -6,6 +8,7 @@ import {
   albumColumnClass,
   className,
   innerClass,
+  selectedTableRowClass,
   tableClass,
   titleClass,
   titleColumnClass,
@@ -25,13 +28,47 @@ export type TrackListProps = {
 
 function TrackList({ tracks, filter }: TrackListProps) {
   let trackIndex = 1;
+  let selectingRow = false;
+
+  const tableRef = useRef<HTMLTableElement>(null);
+
+  const onRowMouseDownHandler = (rowIndex: number): React.MouseEventHandler<HTMLTableRowElement> => {
+    return (_event: React.MouseEvent<HTMLTableRowElement>) => {
+      const row = tableRef.current?.rows[rowIndex];
+      if (!row) {
+        return;
+      }
+
+      selectingRow = row.classList.toggle(selectedTableRowClass);
+    };
+  };
+
+  const onRowMouseOverHandler = (rowIndex: number): React.MouseEventHandler<HTMLTableRowElement> => {
+    return (event: React.MouseEvent<HTMLTableRowElement>) => {
+      if (event.buttons !== 1) {
+        return;
+      }
+
+      const row = tableRef.current?.rows[rowIndex];
+      if (!row) {
+        return;
+      }
+
+      if (selectingRow) {
+        row.classList.add(selectedTableRowClass);
+      } else {
+        row.classList.remove(selectedTableRowClass);
+      }
+    };
+  };
+
   return (
     <div className={className}>
       <div className={innerClass}>
         {/* <div>
           <pre>{JSON.stringify(filter, null, 2)}</pre>
         </div> */}
-        <table className={tableClass}>
+        <table className={tableClass} ref={tableRef}>
           <thead>
             <tr>
               <th>#</th>
@@ -61,7 +98,11 @@ function TrackList({ tracks, filter }: TrackListProps) {
                   }
 
                   return hideRow ? undefined : (
-                    <tr key={id}>
+                    <tr
+                      key={id}
+                      onMouseDown={onRowMouseDownHandler(trackIndex)}
+                      onMouseOver={onRowMouseOverHandler(trackIndex)}
+                    >
                       <td>
                         <p>{trackIndex++}</p>
                       </td>
