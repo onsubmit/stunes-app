@@ -53,20 +53,18 @@ export const tableClass = style({
     'th, td': {
       padding: '12px',
     },
-    tr: {
+    tbody: {
       $nest: {
-        p: {
-          margin: 0,
-        },
-        '&:hover': {
-          ...showPlayButton,
-        },
-      },
-    },
-    'tr:not(:first-of-type)': {
-      $nest: {
-        '&:hover': {
-          background: 'rgba(255, 255, 255, 0.05)',
+        tr: {
+          $nest: {
+            p: {
+              margin: 0,
+            },
+            '&:hover': {
+              background: 'rgba(255, 255, 255, 0.05)',
+              ...showPlayButton,
+            },
+          },
         },
       },
     },
