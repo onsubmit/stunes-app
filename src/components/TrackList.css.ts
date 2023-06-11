@@ -31,6 +31,11 @@ const showPlayButton: NestedCSSProperties = {
 
 export const selectedTableRowClass = style({
   background: '#5A5A5A !important',
+  $nest: {
+    '&:hover': {
+      background: '#727272 !important',
+    },
+  },
 });
 
 export const tableClass = style({
@@ -40,7 +45,7 @@ export const tableClass = style({
   userSelect: 'none',
   $nest: {
     'thead tr': {
-      borderBottom: '1px solid rgba(255, 255, 255, 0.25)',
+      borderBottom: '#1E1E1E',
     },
     th: {
       textAlign: 'left',
