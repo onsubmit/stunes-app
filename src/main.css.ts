@@ -1,4 +1,4 @@
-import { cssRule } from 'typestyle';
+import { cssRaw, cssRule } from 'typestyle';
 
 cssRule(':root', {
   background: '#000',
@@ -25,3 +25,10 @@ cssRule('a:active, a:visited:active', {
   color: '#fff',
   textDecoration: 'underline',
 });
+
+cssRaw(`
+.gutter {
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+`);

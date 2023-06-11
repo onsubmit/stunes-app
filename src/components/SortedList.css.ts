@@ -5,7 +5,6 @@ export const className = style({
   borderRadius: '6px',
   borderColor: '#000',
   background: '#121212',
-  margin: '0 6px 6px 0px',
   padding: '6px',
 });
 
@@ -21,9 +20,13 @@ export const filterClass = style({
   color: '#fff',
 });
 
+export const selectContainer = style({
+  height: 'calc(100% - 40px)',
+});
+
 export const multiSelectClass = style({
   width: '100%',
-  height: '380px',
+  height: '100%',
   background: 'transparent',
   border: '1px solid transparent',
   borderRadius: '6px',

@@ -1,11 +1,7 @@
 import { style } from 'typestyle';
 
-const height = 'calc(100vh - 64px - 32px - 440px)';
-
 export const className = style({
-  flex: 1,
-  maxHeight: height,
-  overflow: 'hidden',
+  overflow: 'auto',
   borderRadius: '6px',
   borderColor: '#000',
   background: '#121212',
@@ -15,7 +11,6 @@ export const className = style({
 
 export const innerClass = style({
   overflowY: 'auto',
-  maxHeight: height,
 });
 
 export const tableClass = style({

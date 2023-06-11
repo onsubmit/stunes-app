@@ -25,6 +25,7 @@
     "querystring": "^0.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-split": "^2.0.14",
     "spotify-web-api-js": "^1.5.2",
     "ts-results": "^3.3.0",
     "typestyle": "^2.4.0",

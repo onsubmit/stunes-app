@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import Split from 'react-split';
 import { Err, Ok, Result } from 'ts-results';
 
 import { artistGenreMap } from '../utils/ArtistGenreMap';
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import { getPlaylistItemsAsync, Track } from '../utils/spotifyWebApi/playlists';
-import { className, filtersClass, statusClass } from './ContentContainer.css';
+import { className, filtersClass, splitClass, statusClass } from './ContentContainer.css';
 import SortedGenreList from './SortedGenreList';
 import SortedList, { optionValueAll, optionValueNoResults } from './SortedList';
 import TrackList, { TrackListFilter } from './TrackList';
@@ -100,7 +101,7 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
     if (playlistTracksResult?.ok) {
       if (playlistTracksResult.val) {
         return (
-          <>
+          <Split className={splitClass} direction="vertical" sizes={[30, 70]} gutterSize={6} minSize={200}>
             <div className={filtersClass}>
               <SortedGenreList
                 artistIds={new Set(artistsMap.keys())}
@@ -122,9 +123,8 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
                 onSelectedItemsChange={onSelectedAlbumsChange}
               />
             </div>
-
             <TrackList tracks={tracksMap} filter={trackListFilter} />
-          </>
+          </Split>
         );
       }
     }

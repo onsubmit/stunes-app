@@ -1,6 +1,7 @@
 import { style } from 'typestyle';
 
 export const className = style({
+  display: 'flex',
   flex: 1,
   $nest: {
     // Don't captitalize the first <option>

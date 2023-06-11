@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { className, filterClass, multiSelectClass } from './SortedList.css';
+import { className, filterClass, multiSelectClass, selectContainer } from './SortedList.css';
 
 export type SortedListProps = {
   title: string;
@@ -63,7 +63,7 @@ function SortedList({ title, pluralTitle, onSelectedItemsChange, items, keyFilte
           onChange={onValueFilterChange}
         ></input>
       </div>
-      <div>
+      <div className={selectContainer}>
         <select
           ref={selectRef}
           multiple
