@@ -134,7 +134,7 @@ function DevicePicker() {
           <Select
             options={options}
             className={selectClass}
-            defaultValue={defaultValue}
+            value={defaultValue}
             placeholder="Select device"
             theme={selectTheme}
             styles={selectStyles}
