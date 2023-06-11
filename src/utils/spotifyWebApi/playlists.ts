@@ -7,6 +7,7 @@ export type Track = {
   albumUrl: string;
   artists: { id: string; name: string; href: string }[];
   id: string;
+  uri: string;
   song: string;
   songUrl: string;
   addedAt: Date;
@@ -30,7 +31,7 @@ export async function getPlaylistItemsAsync(
         offset,
         limit,
         fields:
-          'total,limit,next,items(added_at,track(id,external_urls,name,duration_ms,album(id,external_urls,name,href,images),artists(id,name,external_urls(spotify))))',
+          'total,limit,next,items(added_at,track(id,uri,external_urls,name,duration_ms,album(id,external_urls,name,href,images),artists(id,name,external_urls(spotify))))',
       });
 
       tracks.push(
@@ -41,6 +42,7 @@ export async function getPlaylistItemsAsync(
           const albumImage = albumImages.find((image) => image.height === 64) || albumImages[0];
           return {
             id: track.id,
+            uri: track.uri,
             song: track.name,
             songUrl: track.external_urls.spotify,
             addedAt: new Date(Date.parse(item.added_at)),

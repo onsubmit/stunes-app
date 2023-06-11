@@ -40,3 +40,19 @@ export async function getCurrentlyPlayingTrackAsync(
     });
   });
 }
+
+export async function startPlaybackAsync(
+  accessToken: string,
+  refreshToken: string,
+  trackUris: string[]
+): Promise<Result<void, void>> {
+  return executeAsync(accessToken, refreshToken, async (spotifyApi) => {
+    try {
+      await spotifyApi.play({ uris: trackUris });
+    } catch {
+      return Err.EMPTY;
+    }
+
+    return Ok.EMPTY;
+  });
+}

@@ -130,7 +130,7 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
                 onSelectedItemsChange={onSelectedAlbumsChange}
               />
             </Split>
-            <TrackList tracks={tracksMap} filter={trackListFilter} />
+            <TrackList tracks={tracksMap} filter={trackListFilter} onSelectedTracksChange={onSelectedTracksChange} />
           </Split>
         );
       }
@@ -253,6 +253,10 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
 
   function onUpdateArtistGenreMap(artistId: string, genres: string[]) {
     artistGenreMap.add(artistId, genres);
+  }
+
+  function onSelectedTracksChange(selectedTrackUris: string[]) {
+    console.log(selectedTrackUris);
   }
 }
 

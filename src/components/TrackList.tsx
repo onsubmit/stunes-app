@@ -25,6 +25,7 @@ export type TrackListFilter = {
 export type TrackListProps = {
   tracks: Map<string, Track>;
   filter: TrackListFilter;
+  onSelectedTracksChange: (selectedTrackUris: string[]) => void;
 };
 
 function TrackList({ tracks, filter }: TrackListProps) {
@@ -69,7 +70,7 @@ function TrackList({ tracks, filter }: TrackListProps) {
         {/* <div>
           <pre>{JSON.stringify(filter, null, 2)}</pre>
         </div> */}
-        <table className={tableClass} ref={tableRef}>
+        <table id="tracks" className={tableClass} ref={tableRef}>
           <thead>
             <tr>
               <th>#</th>
@@ -101,6 +102,7 @@ function TrackList({ tracks, filter }: TrackListProps) {
                   return hideRow ? undefined : (
                     <tr
                       key={id}
+                      data-track-uri={track.uri}
                       onMouseDown={onRowMouseDownHandler(trackIndex)}
                       onMouseOver={onRowMouseOverHandler(trackIndex)}
                     >
