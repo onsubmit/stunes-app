@@ -1,6 +1,6 @@
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import { startPlaybackAsync } from '../utils/spotifyWebApi/player';
-import { className } from './PlaybackControls.css';
+import { buttonClass, className } from './PlaybackControls.css';
 import { selectedTableRowClass } from './TrackList.css';
 
 export type PlaybackControlsProps = {
@@ -36,7 +36,9 @@ function PlaybackControls({ onPlaybackStarted }: PlaybackControlsProps) {
 
   return (
     <div className={className}>
-      <button onClick={onPlaySelectedAsync}>Play selected</button>
+      <button className={buttonClass} onClick={onPlaySelectedAsync}>
+        Play selected
+      </button>
     </div>
   );
 }
