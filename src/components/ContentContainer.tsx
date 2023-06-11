@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Split from 'react-split';
 import { Err, Ok, Result } from 'ts-results';
 
@@ -29,6 +29,17 @@ function ContentContainer({ selectedPlaylists }: ContentContainerProps) {
     artists: [],
     albums: [],
   });
+
+  useEffect(() => {
+    setArtistsFilter(new Set());
+    setAlbumsFilter(new Set());
+    setTrackListFilter({
+      hideAll: false,
+      genres: [],
+      artists: [],
+      albums: [],
+    });
+  }, [selectedPlaylists]);
 
   const {
     isLoading,
