@@ -90,3 +90,19 @@ export async function startPlaybackAsync(
     return Ok.EMPTY;
   });
 }
+
+export async function transferPlaybackAsync(
+  accessToken: string,
+  refreshToken: string,
+  deviceIds: string[]
+): Promise<Result<void, void>> {
+  return executeAsync(accessToken, refreshToken, async (spotifyApi) => {
+    try {
+      await spotifyApi.transferMyPlayback(deviceIds);
+    } catch {
+      return Err.EMPTY;
+    }
+
+    return Ok.EMPTY;
+  });
+}

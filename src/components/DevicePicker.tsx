@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import Select, { StylesConfig, Theme } from 'react-select';
+import Select, { ActionMeta, StylesConfig, Theme } from 'react-select';
 import { Err, Ok, Result } from 'ts-results';
 
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
-import { AvailableDevice, getAvailableDevicesAsync } from '../utils/spotifyWebApi/player';
+import { AvailableDevice, getAvailableDevicesAsync, transferPlaybackAsync } from '../utils/spotifyWebApi/player';
 import { className, selectClass, statusClass } from './DevicePicker.css';
 
 type SelectOption = { value: string | null; label: string };
@@ -66,6 +66,23 @@ function DevicePicker() {
     }),
   };
 
+  async function onChangeAsync(newValue: unknown, _actionMeta: ActionMeta<unknown>) {
+    const selectedOption = newValue as SelectOption;
+    const deviceId = selectedOption.value;
+
+    if (!deviceId) {
+      return;
+    }
+
+    const result = await getOrRefreshAccessTokenAsync();
+    if (!result.ok) {
+      return Err.EMPTY;
+    }
+
+    const { accessToken, refreshToken } = result.val;
+    await transferPlaybackAsync(accessToken, refreshToken, [deviceId]);
+  }
+
   function getElement(): JSX.Element {
     if (isLoading) {
       return <Select className={selectClass} isLoading={true} placeholder="Loading devices..." theme={selectTheme} />;
@@ -121,6 +138,7 @@ function DevicePicker() {
             placeholder="Select device"
             theme={selectTheme}
             styles={selectStyles}
+            onChange={onChangeAsync}
           />
         );
       }
