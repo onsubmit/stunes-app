@@ -50,3 +50,6 @@ export const anchorClass = style({
     '&&&&:active': { color: '#fff' },
   },
 });
+export const selectedPlaylistClass = style({
+  background: '#5A5A5A',
+});

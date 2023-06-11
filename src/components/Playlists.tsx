@@ -3,7 +3,14 @@ import { Err, Ok, Result } from 'ts-results';
 
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import { getUserPlaylistsAsync, Playlist } from '../utils/spotifyWebApi/users';
-import { anchorClass, className, playlistInfo, playlistPhoto, statusClass } from './Playlists.css';
+import {
+  anchorClass,
+  className,
+  playlistInfo,
+  playlistPhoto,
+  selectedPlaylistClass,
+  statusClass,
+} from './Playlists.css';
 
 type PlaylistsProps = {
   updateSelectedPlaylists: (newSelectedPlaylists: string[]) => void;
@@ -31,6 +38,16 @@ function Playlists({ updateSelectedPlaylists }: PlaylistsProps) {
       return new Ok(propsResult.val);
     },
   });
+
+  function onClickPlaylist(anchor: HTMLAnchorElement, newSelectedPlaylists: string[]) {
+    anchor.parentElement
+      ?.querySelectorAll(`.${selectedPlaylistClass}`)
+      .forEach((sibling) => sibling.classList.remove(selectedPlaylistClass));
+
+    anchor.classList.toggle(selectedPlaylistClass);
+
+    updateSelectedPlaylists(newSelectedPlaylists);
+  }
 
   async function getPlaylistsAsync(): Promise<Result<Playlist[], void>> {
     const result = await getOrRefreshAccessTokenAsync();
@@ -61,7 +78,9 @@ function Playlists({ updateSelectedPlaylists }: PlaylistsProps) {
                   key={playlist.id}
                   href="#"
                   className={anchorClass}
-                  onClick={() => updateSelectedPlaylists([playlist.id])}
+                  onClick={(event: React.MouseEvent<HTMLAnchorElement>) =>
+                    onClickPlaylist(event.currentTarget, [playlist.id])
+                  }
                 >
                   <div className={playlistInfo}>
                     <div>
