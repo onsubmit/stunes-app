@@ -11,6 +11,14 @@ export type CurrentTrack = {
   albumArtUrl: string;
 };
 
+export type AvailableDevice = {
+  id: string | null;
+  isActive: boolean;
+  isRestricted: boolean;
+  name: string;
+  type: string;
+};
+
 export async function getCurrentlyPlayingTrackAsync(
   accessToken: string,
   refreshToken: string
@@ -38,6 +46,32 @@ export async function getCurrentlyPlayingTrackAsync(
       albumUrl: album.external_urls.spotify,
       albumArtUrl: image?.url || '',
     });
+  });
+}
+
+export async function getAvailableDevicesAsync(
+  accessToken: string,
+  refreshToken: string
+): Promise<Result<AvailableDevice[], void>> {
+  return executeAsync(accessToken, refreshToken, async (spotifyApi) => {
+    let devices: SpotifyApi.UserDevicesResponse;
+    try {
+      devices = await spotifyApi.getMyDevices();
+    } catch {
+      return Err.EMPTY;
+    }
+
+    return new Ok(
+      devices.devices.map((device) => {
+        return {
+          id: device.id,
+          isActive: device.is_active,
+          isRestricted: device.is_restricted,
+          name: device.name,
+          type: device.type,
+        };
+      })
+    );
   });
 }
 
