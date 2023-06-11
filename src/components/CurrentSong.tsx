@@ -7,7 +7,11 @@ import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAs
 import { CurrentTrack, getCurrentlyPlayingTrackAsync } from '../utils/spotifyWebApi/player';
 import { albumArtPhoto, className, songNameClass, statusClass } from './CurrentSong.css';
 
-function CurrentSong() {
+export type CurrentSongProps = {
+  refetchCount: number;
+};
+
+function CurrentSong({ refetchCount }: CurrentSongProps) {
   const queryKey = 'getCurrentSong';
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -16,7 +20,7 @@ function CurrentSong() {
     error,
     data: currentSongResult,
   } = useQuery({
-    queryKey: [queryKey],
+    queryKey: [queryKey, refetchCount],
     retry: false,
     refetchOnReconnect: false,
     refetchOnMount: false,

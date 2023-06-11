@@ -3,7 +3,11 @@ import { startPlaybackAsync } from '../utils/spotifyWebApi/player';
 import { className } from './PlaybackControls.css';
 import { selectedTableRowClass } from './TrackList.css';
 
-function PlaybackControls() {
+export type PlaybackControlsProps = {
+  onPlaybackStarted: () => void;
+};
+
+function PlaybackControls({ onPlaybackStarted }: PlaybackControlsProps) {
   async function onPlaySelectedAsync() {
     const tracks = document.getElementById('tracks');
     if (!tracks) {
@@ -27,6 +31,7 @@ function PlaybackControls() {
 
     const { accessToken, refreshToken } = result.val;
     await startPlaybackAsync(accessToken, refreshToken, trackUris);
+    onPlaybackStarted();
   }
 
   return (
