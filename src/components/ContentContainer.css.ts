@@ -19,11 +19,6 @@ export const splitClass = style({
 export const filtersClass = style({
   display: 'flex',
   flexDirection: 'row',
-  $nest: {
-    '> div:not(:last-child)': {
-      marginRight: '6px',
-    },
-  },
 });
 
 export const statusClass = style({
@@ -33,6 +28,11 @@ export const statusClass = style({
 
 cssRaw(`
 .gutter.gutter-vertical {
-  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAGCAYAAADUtS5UAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAjSURBVChTY0xLS/vPAASzZs1iBNH04jOBiFFADzDS4piBAQBtPjxpyMOXRAAAAABJRU5ErkJggg==');
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAGCAYAAAA13jsFAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAnSURBVEhLYxgFo2AU4AGMaWlp/6HsUTAIABOUHgWjYBSMgkEPGBgAzncCNWU7Cq4AAAAASUVORK5CYII=');
   cursor: row-resize;
+}
+
+.gutter.gutter-horizontal {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAyCAYAAAB/J6rzAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAqSURBVDhPY4CBtLS0/yAM5TIwQWkMMCqBAUYlMMCoBAYYlcAAtJdgYAAAI14ExTvInrcAAAAASUVORK5CYII=');
+  cursor: col-resize;
 }`);

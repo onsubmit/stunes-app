@@ -30,5 +30,11 @@ cssRaw(`
 .gutter {
   background-repeat: no-repeat;
   background-position: 50%;
+  transition: box-shadow 0.25s ease;
+}
+
+.gutter:hover {
+  box-shadow: inset 20px 20px 20px #333;
+  background-image: none;
 }
 `);

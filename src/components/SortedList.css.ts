@@ -1,7 +1,7 @@
 import { style } from 'typestyle';
 
 export const className = style({
-  flex: 1,
+  //flex: 1,
   borderRadius: '6px',
   borderColor: '#000',
   background: '#121212',
@@ -27,6 +27,7 @@ export const selectContainer = style({
 export const multiSelectClass = style({
   width: '100%',
   height: '100%',
+  overflowY: 'auto',
   background: 'transparent',
   border: '1px solid transparent',
   borderRadius: '6px',
