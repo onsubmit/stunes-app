@@ -54,10 +54,6 @@ export const tableClass = style({
   },
 });
 
-export const indexColumnClass = style({
-  minWidth: '14px',
-});
-
 export const titleColumnClass = style({
   width: '50%',
 });
