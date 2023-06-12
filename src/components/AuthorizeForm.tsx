@@ -5,10 +5,14 @@ import Deferred from '../utils/Deferred';
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import localStorageManager from '../utils/LocalStorage';
 import { CurrentUserProfile, getCurrentUserProfileAsync } from '../utils/spotifyWebApi/users';
-import { className } from './AuthorizeForm.css';
+import { anchorClass, className } from './AuthorizeForm.css';
 import ProfileBadge, { ProfileBadgeProps } from './ProfileBadge';
 
-function AuthorizeForm() {
+export type AuthorizeFormProps = {
+  updateIsConnected: (isConnected: boolean) => void;
+};
+
+function AuthorizeForm({ updateIsConnected }: AuthorizeFormProps) {
   const queryKey = 'currentUserProfile';
   const queryClient = useQueryClient();
 
@@ -45,16 +49,19 @@ function AuthorizeForm() {
     queryFn: async () => {
       const propsResult = await getUserProfileAsync();
       if (!propsResult.ok) {
+        updateIsConnected(false);
         return Err.EMPTY;
       }
 
       if (!propsResult.val) {
+        updateIsConnected(false);
         return propsResult;
       }
 
       const { displayName, profilePhotoUrl, id } = propsResult.val;
 
       localStorageManager.set('userId', id);
+      updateIsConnected(true);
 
       const profileBadgeProps: ProfileBadgeProps = { displayName, profilePhotoUrl };
       return new Ok(profileBadgeProps);
@@ -153,6 +160,7 @@ function AuthorizeForm() {
     }
 
     await deferredLogin.promise;
+
     queryClient.invalidateQueries();
 
     return false;
@@ -172,9 +180,12 @@ function AuthorizeForm() {
     }
 
     return (
-      <a href="/login" onClick={handleLogin}>
-        Connect to Spotify
-      </a>
+      <p>
+        <a href="/login" className={anchorClass} onClick={handleLogin}>
+          Connect to Spotify
+        </a>{' '}
+        to get started.
+      </p>
     );
   }
 

@@ -9,7 +9,12 @@ import Playlists from './components/Playlists';
 const queryClient = new QueryClient();
 
 function App() {
+  const [isConnected, setIsConnected] = useState(false);
   const [selectedPlaylists, setSelectedPlaylists] = useState<string[]>([]);
+
+  function updateIsConnected(value: boolean) {
+    setIsConnected(value);
+  }
 
   function updateSelectedPlaylists(newSelectedPlaylists: string[]) {
     setSelectedPlaylists(newSelectedPlaylists);
@@ -18,11 +23,13 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <div className={className}>
-        <Header />
-        <div className={mainContainer}>
-          <Playlists updateSelectedPlaylists={updateSelectedPlaylists} />
-          <ContentContainer selectedPlaylists={selectedPlaylists} />
-        </div>
+        <Header updateIsConnected={updateIsConnected} />
+        {isConnected && (
+          <div className={mainContainer}>
+            <Playlists updateSelectedPlaylists={updateSelectedPlaylists} />
+            <ContentContainer selectedPlaylists={selectedPlaylists} />
+          </div>
+        )}
       </div>
     </QueryClientProvider>
   );

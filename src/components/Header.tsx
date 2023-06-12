@@ -6,7 +6,12 @@ import DevicePicker from './DevicePicker';
 import { className } from './Header.css';
 import PlaybackControls from './PlaybackControls';
 
-function Header() {
+export type HeaderProps = {
+  updateIsConnected: (isConnected: boolean) => void;
+};
+
+function Header({ updateIsConnected }: HeaderProps) {
+  const [isConnected, setIsConnected] = useState(false);
   const [refetchCurrentSongCount, setRefetchCurrentSongCount] = useState(0);
 
   function onPlaybackStarted() {
@@ -18,10 +23,19 @@ function Header() {
 
   return (
     <div className={className}>
-      <CurrentSong refetchCount={refetchCurrentSongCount} />
-      <PlaybackControls onPlaybackStarted={onPlaybackStarted} />
-      <DevicePicker />
-      <AuthorizeForm />
+      {isConnected && (
+        <>
+          <CurrentSong refetchCount={refetchCurrentSongCount} />
+          <PlaybackControls onPlaybackStarted={onPlaybackStarted} />
+          <DevicePicker />
+        </>
+      )}
+      <AuthorizeForm
+        updateIsConnected={(value: boolean) => {
+          setIsConnected(value);
+          updateIsConnected(value);
+        }}
+      />
     </div>
   );
 }
