@@ -91,6 +91,18 @@ export async function startPlaybackAsync(
   });
 }
 
+export async function addItemsToPlaybackQueueAsync(accessToken: string, refreshToken: string, uris: string[]) {
+  return executeAsync(accessToken, refreshToken, async (spotifyApi) => {
+    try {
+      await Promise.all(uris.map((uri) => spotifyApi.queue(uri)));
+    } catch {
+      return Err.EMPTY;
+    }
+
+    return Ok.EMPTY;
+  });
+}
+
 export async function transferPlaybackAsync(
   accessToken: string,
   refreshToken: string,

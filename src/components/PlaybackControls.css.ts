@@ -1,6 +1,8 @@
 import { style } from 'typestyle';
 
 export const className = style({
+  display: 'flex',
+  gap: '6px',
   margin: 'auto',
 });
 
