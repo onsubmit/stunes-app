@@ -46,7 +46,7 @@ function SortedList({ title, pluralTitle, onSelectedItemsChange, items, keyFilte
   const sortedItems = valueFilter || keyFilter?.size ? getSortedItemsForFilter(initialSortedItems) : initialSortedItems;
 
   const filteredTotal = sortedItems.length;
-  const pluralizedTitle = filteredTotal === 1 ? title : pluralTitle;
+  const pluralizedTitle = originalTotal === 1 ? title : pluralTitle;
   const fullTitle =
     filteredTotal === originalTotal
       ? `All (${filteredTotal} ${pluralizedTitle.toLocaleLowerCase()})`
