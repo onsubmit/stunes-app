@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Err, Ok, Result } from 'ts-results';
+import { classes } from 'typestyle';
 
 import { getOrRefreshAccessTokenAsync } from '../utils/getOrRefreshAccessTokenAsync';
 import { getUserPlaylistsAsync, Playlist } from '../utils/spotifyWebApi/users';
@@ -33,6 +34,10 @@ function Playlists({ updateSelectedPlaylists }: PlaylistsProps) {
       const propsResult = await getPlaylistsAsync();
       if (!propsResult.ok) {
         return Ok.EMPTY;
+      }
+
+      if (propsResult.val[0]) {
+        updateSelectedPlaylists([propsResult.val[0].id]);
       }
 
       return new Ok(propsResult.val);
@@ -72,12 +77,12 @@ function Playlists({ updateSelectedPlaylists }: PlaylistsProps) {
       if (currentPlaylistsResult.val) {
         return (
           <>
-            {currentPlaylistsResult.val.map((playlist) => {
+            {currentPlaylistsResult.val.map((playlist, index) => {
               return (
                 <a
                   key={playlist.id}
                   href="#"
-                  className={anchorClass}
+                  className={index === 0 ? classes(anchorClass, selectedPlaylistClass) : anchorClass}
                   onClick={(event: React.MouseEvent<HTMLAnchorElement>) =>
                     onClickPlaylist(event.currentTarget, [playlist.id])
                   }
