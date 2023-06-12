@@ -113,7 +113,12 @@ function TrackList({ tracks, filter }: TrackListProps) {
                           <div>
                             {track.album.albumArtUrl &&
                               (track.albumUrl ? (
-                                <a href={track.albumUrl} target="_blank" rel="noreferrer">
+                                <a
+                                  href={track.albumUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  onMouseDown={(event) => event.stopPropagation()}
+                                >
                                   <img className={albumArtPhoto} src={track.album.albumArtUrl}></img>
                                 </a>
                               ) : (
@@ -130,7 +135,12 @@ function TrackList({ tracks, filter }: TrackListProps) {
                               {track.artists?.map((a, i) => {
                                 return (
                                   <span key={`artist${i}`}>
-                                    <a href={a.href} target="_blank" rel="noreferrer">
+                                    <a
+                                      href={a.href}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      onMouseDown={(event) => event.stopPropagation()}
+                                    >
                                       {a.name}
                                     </a>
                                     {i < track.artists.length - 1 ? <span>, </span> : undefined}
@@ -143,7 +153,12 @@ function TrackList({ tracks, filter }: TrackListProps) {
                       </td>
                       <td>
                         {track.albumUrl ? (
-                          <a href={track.albumUrl} target="_blank" rel="noreferrer">
+                          <a
+                            href={track.albumUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            onMouseDown={(event) => event.stopPropagation()}
+                          >
                             {track.album.name}
                           </a>
                         ) : (
