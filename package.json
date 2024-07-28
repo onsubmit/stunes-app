@@ -16,7 +16,7 @@
     "test-ui": "cross-env NODE_ENV=test vitest --ui --api 9527"
   },
   "dependencies": {
-    "@tanstack/react-query": "^4.29.5",
+    "@tanstack/react-query": "5.51.15",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
