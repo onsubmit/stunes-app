@@ -115,7 +115,7 @@ describe('/callback', () => {
 
     expect(response.statusCode).toEqual(302);
     expect(response.headers['location']).toBe(
-      '/#error=invalid_response&response=%7B%22_errors%22%3A%5B%5D%2C%22access_token%22%3A%7B%22_errors%22%3A%5B%22Required%22%5D%7D%2C%22token_type%22%3A%7B%22_errors%22%3A%5B%22Required%22%5D%7D%2C%22scope%22%3A%7B%22_errors%22%3A%5B%22Required%22%5D%7D%2C%22expires_in%22%3A%7B%22_errors%22%3A%5B%22Required%22%5D%7D%2C%22refresh_token%22%3A%7B%22_errors%22%3A%5B%22Required%22%5D%7D%7D'
+      '/#error=invalid_response&response=%7B%22_errors%22%3A%5B%5D%2C%22access_token%22%3A%7B%22_errors%22%3A%5B%22Required%22%5D%7D%2C%22expires_in%22%3A%7B%22_errors%22%3A%5B%22Required%22%5D%7D%2C%22token_type%22%3A%7B%22_errors%22%3A%5B%22Required%22%5D%7D%2C%22scope%22%3A%7B%22_errors%22%3A%5B%22Required%22%5D%7D%2C%22refresh_token%22%3A%7B%22_errors%22%3A%5B%22Required%22%5D%7D%7D'
     );
   });
 

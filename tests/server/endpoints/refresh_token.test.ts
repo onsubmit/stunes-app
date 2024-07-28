@@ -58,7 +58,7 @@ describe('/refresh_token', () => {
     expect(response.body).toStrictEqual({
       error: 'invalid_response',
       response:
-        '{"_errors":[],"access_token":{"_errors":["Required"]},"token_type":{"_errors":["Required"]},"scope":{"_errors":["Required"]},"expires_in":{"_errors":["Required"]}}',
+        '{"_errors":[],"access_token":{"_errors":["Required"]},"expires_in":{"_errors":["Required"]},"token_type":{"_errors":["Required"]},"scope":{"_errors":["Required"]}}',
     });
   });
 
